@@ -1,6 +1,5 @@
 package com.wj.crawler.parser;
 
-import com.mongodb.MongoClient;
 import dagger.Module;
 import dagger.Provides;
 
