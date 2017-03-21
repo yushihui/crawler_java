@@ -1,22 +1,23 @@
 package com.wj.crawler.fetcher;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import org.apache.http.HttpEntity;
-
-import javax.inject.Inject;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
 /**
  * Created by SYu on 3/15/2017.
  */
 public abstract class AbstractFetcher {
 
-    @Inject
-    protected Gson gson;
+    protected  String URL_PREFIX ="";
 
-    abstract void doFetch();
+    abstract void fetchPage(int page);
 
 
+    public void doFetch(int from, int to, int freq) {
+        for (int i = from; i < to; i++) {
+            fetchPage(i);
+            try {
+                Thread.sleep(freq * 1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

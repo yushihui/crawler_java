@@ -3,6 +3,8 @@ package com.wj.crawler;
 
 import com.wj.crawler.common.NetModule;
 import com.wj.crawler.db.DbModule;
+import com.wj.crawler.fetcher.FetchWithoutCookie;
+import com.wj.crawler.fetcher.WeiboContenFetcher;
 import com.wj.crawler.fetcher.WeiboUserFetcher;
 import com.wj.crawler.parser.ParserModule;
 import dagger.Component;
@@ -19,13 +21,19 @@ public class CrawlerApp {
     @Component(modules = {NetModule.class, DbModule.class, ParserModule.class})
     public interface Fetcher {
         WeiboUserFetcher getFetcher();
+       // FetchWithoutCookie getWeiboFetcher();
+        WeiboContenFetcher getWeiboFetcher();
     }
 
     public static void main(String args[]) {
 
         Fetcher fetcher = DaggerCrawlerApp_Fetcher.builder().build();
-        WeiboUserFetcher weiboUserFetcher = fetcher.getFetcher();
-        weiboUserFetcher.doFetch();
+//        WeiboUserFetcher weiboUserFetcher = fetcher.getFetcher();
+//        weiboUserFetcher.doFetchUser();
+
+        WeiboContenFetcher weiboFetcher = fetcher.getWeiboFetcher();
+
+        weiboFetcher.doFetchContent();
 
 
     }

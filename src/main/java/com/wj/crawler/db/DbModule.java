@@ -4,9 +4,11 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.wj.crawler.common.ConfigModule;
+import com.wj.crawler.db.orm.WeiboDAO;
 import com.wj.crawler.db.orm.WeiboUserDAO;
 import dagger.Module;
 import dagger.Provides;
+
 import javax.inject.Singleton;
 import java.util.Properties;
 
@@ -58,6 +60,11 @@ public class DbModule {
     @Provides
     WeiboUserDAO providerWeiboUserDao(@Named("wb_user") MongoCollection collection) {
         return new WeiboUserDAO(collection);
+    }
+
+    @Provides
+    WeiboDAO providerWeiboDao(@Named("weibo") MongoCollection collection) {
+        return new WeiboDAO(collection);
     }
 }
 

@@ -9,7 +9,6 @@ import org.apache.http.client.CookieStore;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -30,7 +29,7 @@ public class NetModule {
     @Singleton
     RequestConfig providerHttpClientConfig() {
         RequestConfig defaultRequestConfig = RequestConfig.custom()
-                .setCookieSpec(CookieSpecs.DEFAULT)
+                .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
                 .setExpectContinueEnabled(true)
                 .setSocketTimeout(5000)
                 .setConnectTimeout(5000)
@@ -49,32 +48,50 @@ public class NetModule {
 
     @Provides
     @Singleton
-    public CloseableHttpClient providerHttpClient(CookieStore cookieStore, RequestConfig defaultRequestConfig) {
+    List<Header> providerHttpHeaders(Properties config) {
+
         Header header = new BasicHeader(
                 HttpHeaders.CONTENT_TYPE, "application/json");
+        Header headerConnection = new BasicHeader(
+                HttpHeaders.CONNECTION, "keep-alive");
+        Header headerHost = new BasicHeader(
+                HttpHeaders.HOST, "m.weibo.cn");
+        Header headerSecure = new BasicHeader(
+                HttpHeaders.REFERER, "http://m.weibo.cn/");
+
+        String cookie = config.getProperty("weibo.cookie");
+        Header headerCookie = new BasicHeader(
+                "Cookie", cookie);
+
         Header headerAgent = new BasicHeader(
-                HttpHeaders.USER_AGENT, "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36");
-        List<Header> headers = Lists.newArrayList(header,headerAgent);
+                HttpHeaders.USER_AGENT, "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1");
+
+        return Lists.newArrayList(header,headerAgent,headerCookie);
+
+    }
+
+    @Provides
+    @Singleton
+    public CloseableHttpClient providerHttpClient(CookieStore cookieStore, RequestConfig defaultRequestConfig) {
+
         CloseableHttpClient httpclient = HttpClients.custom()
-                .setDefaultCookieStore(cookieStore)
-                .setDefaultHeaders(headers)
+                //.setDefaultCookieStore(cookieStore)
+                //.setDefaultHeaders(headers)
                 .setDefaultRequestConfig(defaultRequestConfig)
                 .build();
         return httpclient;
     }
 
 
-
-
     @Provides
     @Singleton
-    CookieStore providerCookieStore(Properties config){
+    CookieStore providerCookieStore(Properties config) {
         CookieStore cookies = new BasicCookieStore();
         String cookieString = config.getProperty("weibo.cookie");
-        String[] cookieArray =cookieString.split(";");
-        for (String ck:cookieArray) {
-            String[] pare=ck.split("=");
-            BasicClientCookie cook = new BasicClientCookie(pare[0].trim(),pare[1]);
+        String[] cookieArray = cookieString.split(";");
+        for (String ck : cookieArray) {
+            String[] pare = ck.split("=");
+            BasicClientCookie cook = new BasicClientCookie(pare[0].trim(), pare[1]);
             cook.setDomain(".weibo.cn");
             cook.setPath("/");
 
