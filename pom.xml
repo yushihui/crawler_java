@@ -10,7 +10,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <guava.version>19.0</guava.version>
+        <guava.version>21.0</guava.version>
         <dagger.version>2.10-rc4</dagger.version>
         <junit.version>4.12</junit.version>
         <mongo.version>3.4.2</mongo.version>
@@ -18,6 +18,11 @@
         <httpclient.version>4.5.3</httpclient.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.google.dagger</groupId>
             <artifactId>dagger</artifactId>
@@ -39,20 +44,12 @@
             <artifactId>httpclient</artifactId>
             <version>${httpclient.version}</version>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>com.google.guava</groupId>-->
-            <!--<artifactId>guava</artifactId>-->
-            <!--<version>${guava.version}</version>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
