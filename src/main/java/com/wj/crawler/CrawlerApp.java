@@ -3,7 +3,7 @@ package com.wj.crawler;
 
 import com.wj.crawler.common.NetModule;
 import com.wj.crawler.db.DbModule;
-import com.wj.crawler.fetcher.FetchWithoutCookie;
+import com.wj.crawler.fetcher.CrawSyncService;
 import com.wj.crawler.fetcher.WeiboContenFetcher;
 import com.wj.crawler.fetcher.WeiboUserFetcher;
 import com.wj.crawler.parser.ParserModule;
@@ -23,6 +23,7 @@ public class CrawlerApp {
         WeiboUserFetcher getFetcher();
        // FetchWithoutCookie getWeiboFetcher();
         WeiboContenFetcher getWeiboFetcher();
+        CrawSyncService getCyService();
     }
 
     public static void main(String args[]) {
@@ -31,10 +32,10 @@ public class CrawlerApp {
 //        WeiboUserFetcher weiboUserFetcher = fetcher.getFetcher();
 //        weiboUserFetcher.doFetchUser();
 
-        WeiboContenFetcher weiboFetcher = fetcher.getWeiboFetcher();
-
-        weiboFetcher.doFetchContent();
-
+//        WeiboContenFetcher weiboFetcher = fetcher.getWeiboFetcher();
+//        weiboFetcher.doFetchContent();
+        CrawSyncService cyService = fetcher.getCyService();
+        cyService.syncCrawInfoWithUser();
 
     }
 

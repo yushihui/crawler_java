@@ -9,7 +9,7 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Created by Administrator on 3/22/2017.
+ * Created by SYu on 3/22/2017.
  */
 public class CacheManager {
 

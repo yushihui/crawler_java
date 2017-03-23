@@ -4,6 +4,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.wj.crawler.common.ConfigModule;
+import com.wj.crawler.db.orm.UserCrawInfoDAO;
 import com.wj.crawler.db.orm.WeiboDAO;
 import com.wj.crawler.db.orm.WeiboUserDAO;
 import dagger.Module;
@@ -22,6 +23,7 @@ public class DbModule {
     private final String DEFAULT_DB_NAME = "crawDB";
     private final String DEFAULT_USER_COLL_NAME = "weibo_user";
     private final String DEFAULT_WEIBO_COLL_NAME = "weibo";
+    private final String DEFAULT_WEIBO_USER_CRAW_COLL_NAME = "weibo_user_craw";
 
     @Provides
     @Singleton
@@ -47,6 +49,11 @@ public class DbModule {
         return getCollection(db,DEFAULT_WEIBO_COLL_NAME);
     }
 
+    @Provides @Named("wb_user_craw")
+    MongoCollection provideWeiboUserCrawCollection(MongoDatabase db) {
+        return getCollection(db,DEFAULT_WEIBO_USER_CRAW_COLL_NAME);
+    }
+
     private MongoCollection getCollection(MongoDatabase db, String coll){
         MongoCollection collection = db.getCollection(coll);
         if (collection == null) {
@@ -65,6 +72,11 @@ public class DbModule {
     @Provides
     WeiboDAO providerWeiboDao(@Named("weibo") MongoCollection collection) {
         return new WeiboDAO(collection);
+    }
+
+    @Provides
+    UserCrawInfoDAO providerUserCrawInfoDAO(@Named("wb_user_craw") MongoCollection collection) {
+        return new UserCrawInfoDAO(collection);
     }
 }
 

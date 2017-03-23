@@ -6,7 +6,7 @@ import com.google.common.util.concurrent.ServiceManager;
 import javax.inject.Singleton;
 
 /**
- * Created by Administrator on 3/21/2017.
+ * Created by SYu on 3/21/2017.
  */
 
 @Singleton

@@ -25,7 +25,7 @@ public class WeiboContenFetcher extends AbstractFetcher {
     private final WeiboDAO dao;
     private final WeiboParser parser;
 
-    private static final Logger Log = LoggerFactory.getLogger(FetchWithoutCookie.class);
+    private static final Logger Log = LoggerFactory.getLogger(WeiboContenFetcher.class);
 
     @Inject
     public WeiboContenFetcher(WeiboDAO dao, WeiboParser parser) {

@@ -9,7 +9,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by Administrator on 3/21/2017.
+ * Created by SYu on 3/21/2017.
  */
 public class WeiboFetchService extends AbstractScheduledService {
 

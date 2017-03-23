@@ -14,7 +14,6 @@ public abstract class BaseDAO {
 
     public BaseDAO(MongoCollection collection){
         this.collection = collection;
-
     }
     public void bulkInsert(List<Document> documents) {
         collection.insertMany(documents);

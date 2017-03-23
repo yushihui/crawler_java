@@ -17,7 +17,7 @@ import java.util.Calendar;
 import java.util.List;
 
 /**
- * Created by Administrator on 3/22/2017.
+ * Created by SYu on 3/22/2017.
  */
 public class WeiboContentProxyFetcher {
 

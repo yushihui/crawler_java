@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Created by Administrator on 3/20/2017.
+ * Created by SYu on 3/20/2017.
  */
 public class FetchWithoutCookie {
 
