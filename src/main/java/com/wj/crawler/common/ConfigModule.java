@@ -1,13 +1,9 @@
 package com.wj.crawler.common;
 
-import com.google.gson.Gson;
 import dagger.Module;
 import dagger.Provides;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
 
 import javax.inject.Singleton;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;

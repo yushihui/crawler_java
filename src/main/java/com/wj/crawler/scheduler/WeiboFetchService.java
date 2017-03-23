@@ -15,11 +15,9 @@ public class WeiboFetchService extends AbstractScheduledService {
 
     private static final Logger Log = LoggerFactory.getLogger(WeiboFetchService.class);
 
-    @Inject
-    private Properties config;
+    @Inject Properties config;
 
     private int hours = 1;
-
 
     protected void startUp() throws Exception {// get
         hours = Integer.parseInt(config.getProperty("weibo.freq", "6"));
