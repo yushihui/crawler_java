@@ -3,6 +3,7 @@ package com.wj.crawler.db;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.wj.crawler.common.CacheManager;
 import com.wj.crawler.common.ConfigModule;
 import com.wj.crawler.db.orm.UserCrawInfoDAO;
 import com.wj.crawler.db.orm.WeiboDAO;
@@ -77,6 +78,12 @@ public class DbModule {
     @Provides
     UserCrawInfoDAO providerUserCrawInfoDAO(@Named("wb_user_craw") MongoCollection collection) {
         return new UserCrawInfoDAO(collection);
+    }
+
+    @Provides
+    @Singleton
+    CacheManager providerCacheManager(UserCrawInfoDAO userDao) {
+        return new CacheManager(userDao);
     }
 }
 

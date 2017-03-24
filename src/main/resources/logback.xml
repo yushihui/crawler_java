@@ -6,7 +6,7 @@
         </layout>
     </appender>
 
-    <logger name="com.wj" level="info"/>
+    <logger name="com.wj" level="debug"/>
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>craw_wj.log</file>
@@ -14,7 +14,7 @@
             <Pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</Pattern>
         </layout>
     </appender>
-    <root level="info">
+    <root level="error">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </root>

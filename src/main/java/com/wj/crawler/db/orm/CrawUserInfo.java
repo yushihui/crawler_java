@@ -12,16 +12,35 @@ public class CrawUserInfo {
     private Date lastFetchTime;
     private Date lastPostTime;
     private String lastPostId;
+    private String screenName;
 
     private final static String URL_FORMAT = "http://m.weibo.cn/container/getIndex?type=uid&value=%s&containerid=%s&page=";
 
+    public CrawUserInfo() {
 
-    public CrawUserInfo(String userId, String containerId, Date lastFetchTime, Date lastPostTime, String lastPostId) {
+    }
+
+
+    public CrawUserInfo(String userId, String containerId, Date lastFetchTime, Date lastPostTime, String lastPostId, String screenName) {
         this.userId = userId;
         this.containerId = containerId;
         this.lastFetchTime = lastFetchTime;
         this.lastPostTime = lastPostTime;
         this.lastPostId = lastPostId;
+        this.screenName = screenName;
+    }
+
+    public CrawUserInfo(String userId,String screenName) {
+        this.userId = userId;
+        this.screenName = screenName;
+    }
+
+    public String getScreenName() {
+        return screenName;
+    }
+
+    public void setScreenName(String screenName) {
+        this.screenName = screenName;
     }
 
     public String weiboUrl() {

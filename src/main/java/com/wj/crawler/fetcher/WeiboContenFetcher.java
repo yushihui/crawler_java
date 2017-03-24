@@ -1,6 +1,6 @@
 package com.wj.crawler.fetcher;
 
-import com.wj.crawler.common.CacheManager;
+import com.wj.crawler.common.BrowserProvider;
 import com.wj.crawler.db.orm.WeiboDAO;
 import com.wj.crawler.parser.WeiboParser;
 import org.apache.http.Header;
@@ -39,7 +39,7 @@ public class WeiboContenFetcher extends AbstractFetcher {
         try {
             HttpGet httpget = new HttpGet(URL_PREFIX + page);
             //httpget.setHeaders(headers.toArray(new Header[headers.size()]));
-            httpget.setHeaders(new Header[]{CacheManager.getRandBrowserAgent()});
+            httpget.setHeaders(new Header[]{BrowserProvider.getRandBrowserAgent()});
             CloseableHttpResponse response = httpClient.execute(httpget);
             Log.info("going to parse page..." + page);
             List<Document> documents = parser.parserWeiboContent(response.getEntity());

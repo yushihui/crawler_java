@@ -44,7 +44,7 @@ public class WeiboContentProxyFetcher {
             HttpGet httpget = new HttpGet(user.weiboUrl() + page);
             //httpget.setHeaders(headers.toArray(new Header[headers.size()]));
             CloseableHttpResponse response = httpClient.execute(httpget);
-            Log.info("going to parse page..." + page);
+            Log.debug("going to parse page..." + page);
             List<Document> documents = parser.parserWeiboContent(response.getEntity());
             boolean synced = syncWithDb(documents,user);
             if(!synced){
