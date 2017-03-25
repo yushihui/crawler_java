@@ -21,7 +21,7 @@ public class CrawSyncService {
 
     private final CacheManager cacheManager;
 
-    private static final Logger Log = LoggerFactory.getLogger(WeiboContenFetcher.class);
+    private static final Logger Log = LoggerFactory.getLogger(CrawSyncService.class);
 
     @Inject
     public CrawSyncService(UserCrawInfoDAO uciDAO, WeiboUserDAO userDAO, CacheManager cacheManager) {

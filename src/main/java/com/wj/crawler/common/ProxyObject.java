@@ -3,16 +3,19 @@ package com.wj.crawler.common;
 import com.google.auto.value.AutoValue;
 
 /**
- * Created by Administrator on 3/22/2017.
+ * Created by SYu on 3/22/2017.
  */
 
 @AutoValue
 public abstract class ProxyObject {
-    static ProxyObject create(String ip, int port) {
-        return new AutoValue_ProxyObject(ip, port);
+    public static ProxyObject create(String ip, int port, boolean available) {
+        return new AutoValue_ProxyObject(ip, port, available);
     }
 
-    abstract String ip();
-    abstract int port();
+    public abstract String ip();
+
+    public abstract int port();
+
+    public abstract boolean IsAvailable();
 
 }

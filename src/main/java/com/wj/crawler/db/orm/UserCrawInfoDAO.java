@@ -31,6 +31,7 @@ public class UserCrawInfoDAO extends BaseDAO {
             Document user = new Document();
             user.put("_id", String.valueOf(userInfo.get("id")));
             user.put("screen_name", userInfo.getString("screen_name"));
+            user.put("followers_count", userInfo.getInteger("followers_count"));
             WriteModel<Document> wd = new UpdateOneModel<Document>(
                     filterDocument,                      // find part
                     new Document("$set", user),           // update part
@@ -50,6 +51,7 @@ public class UserCrawInfoDAO extends BaseDAO {
             public CrawUserInfo apply(@Nullable Document document) {
                 CrawUserInfo user = new CrawUserInfo();
                 user.setUserId(document.getString("_id"));
+                user.setFollowersCount(document.getInteger("followers_count"));
                 user.setScreenName(document.getString("screen_name"));
                 user.setLastPostId(document.getString("last_post_id"));
                 user.setLastFetchTime(document.getDate("last_fetch_time"));

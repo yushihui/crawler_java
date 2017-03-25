@@ -5,6 +5,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.wj.crawler.common.CacheManager;
 import com.wj.crawler.common.ConfigModule;
+import com.wj.crawler.db.orm.ProxyDAO;
 import com.wj.crawler.db.orm.UserCrawInfoDAO;
 import com.wj.crawler.db.orm.WeiboDAO;
 import com.wj.crawler.db.orm.WeiboUserDAO;
@@ -19,12 +20,13 @@ import java.util.Properties;
  */
 
 @Module(includes = ConfigModule.class)
-public class DbModule {
+public final class DbModule {
 
     private final String DEFAULT_DB_NAME = "crawDB";
     private final String DEFAULT_USER_COLL_NAME = "weibo_user";
     private final String DEFAULT_WEIBO_COLL_NAME = "weibo";
     private final String DEFAULT_WEIBO_USER_CRAW_COLL_NAME = "weibo_user_craw";
+    private final String DEFAULT_PROXY_COLL_NAME = "proxy";
 
     @Provides
     @Singleton
@@ -35,27 +37,36 @@ public class DbModule {
     @Provides
     @Singleton
     MongoDatabase providerMongoDB(MongoClient conn, Properties config) {
-        String dbName = config.getProperty("db.name",DEFAULT_DB_NAME);
+        String dbName = config.getProperty("db.name", DEFAULT_DB_NAME);
         return conn.getDatabase(dbName);
     }
 
 
-    @Provides @Named("wb_user")
+    @Provides
+    @Named("wb_user")
     MongoCollection provideUserCollection(MongoDatabase db) {
-        return getCollection(db,DEFAULT_USER_COLL_NAME);
+        return getCollection(db, DEFAULT_USER_COLL_NAME);
     }
 
-    @Provides @Named("weibo")
+    @Provides
+    @Named("weibo")
     MongoCollection provideWeiboCollection(MongoDatabase db) {
-        return getCollection(db,DEFAULT_WEIBO_COLL_NAME);
+        return getCollection(db, DEFAULT_WEIBO_COLL_NAME);
     }
 
-    @Provides @Named("wb_user_craw")
+    @Provides
+    @Named("proxy")
+    MongoCollection provideProxyCollection(MongoDatabase db) {
+        return getCollection(db, DEFAULT_PROXY_COLL_NAME);
+    }
+
+    @Provides
+    @Named("wb_user_craw")
     MongoCollection provideWeiboUserCrawCollection(MongoDatabase db) {
-        return getCollection(db,DEFAULT_WEIBO_USER_CRAW_COLL_NAME);
+        return getCollection(db, DEFAULT_WEIBO_USER_CRAW_COLL_NAME);
     }
 
-    private MongoCollection getCollection(MongoDatabase db, String coll){
+    private MongoCollection getCollection(MongoDatabase db, String coll) {
         MongoCollection collection = db.getCollection(coll);
         if (collection == null) {
             db.createCollection(coll);
@@ -76,14 +87,19 @@ public class DbModule {
     }
 
     @Provides
+    ProxyDAO providerProxyDAO(@Named("proxy") MongoCollection collection) {
+        return new ProxyDAO(collection);
+    }
+
+    @Provides
     UserCrawInfoDAO providerUserCrawInfoDAO(@Named("wb_user_craw") MongoCollection collection) {
         return new UserCrawInfoDAO(collection);
     }
 
     @Provides
     @Singleton
-    CacheManager providerCacheManager(UserCrawInfoDAO userDao) {
-        return new CacheManager(userDao);
+    CacheManager providerCacheManager(UserCrawInfoDAO userDao, ProxyDAO proxyDao) {
+        return new CacheManager(userDao,proxyDao);
     }
 }
 

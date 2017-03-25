@@ -1,11 +1,14 @@
 package com.wj.crawler.scheduler;
 
 import com.google.common.util.concurrent.AbstractScheduledService;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.Properties;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -15,12 +18,15 @@ public class WeiboFetchService extends AbstractScheduledService {
 
     private static final Logger Log = LoggerFactory.getLogger(WeiboFetchService.class);
 
+    private ListeningExecutorService service;
+
     @Inject Properties config;
 
     private int hours = 1;
 
     protected void startUp() throws Exception {// get
         hours = Integer.parseInt(config.getProperty("weibo.freq", "6"));
+        service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(10));
     }
 
     protected void runOneIteration() throws Exception {
@@ -28,6 +34,8 @@ public class WeiboFetchService extends AbstractScheduledService {
     }
 
     protected void shutDown() throws Exception {
+
+        service.shutdown();
 
     }
 
