@@ -42,29 +42,37 @@ public class WeiboFetchService extends AbstractScheduledService {
 
     protected void startUp() throws Exception {// get
         hours = Integer.parseInt(config.getProperty("weibo.freq", "6"));
-        service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(10));
+        service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(5));
     }
 
     protected void runOneIteration() throws Exception {
 
-        PriorityBlockingQueue<CrawUserInfo> users =  cache.getWaitingUsers();
-        while(true){
-            if(users.isEmpty()){
+        PriorityBlockingQueue<CrawUserInfo> users = cache.getWaitingUsers();
+        int maxCount = 10;
+        int count = 0;
+        while (true) {
+            if (users.isEmpty()) {
                 Log.info("all fetch worker started");
                 return;
             }
+            if (count == maxCount) {
+                count = 0;
+                Thread.sleep(100 * 1000);
+            }
             CrawUserInfo user = users.take();
-            if(user != null ){
-                ListenableFuture<Boolean> fetcher = service.submit(new WeiboCrawler(dao,parser,user));
-                Futures.addCallback(fetcher,new FutureCallback<Boolean>() {
+            if (user != null) {
+                ListenableFuture<Boolean> fetcher = service.submit(new WeiboCrawler(dao, parser, user));
+                Futures.addCallback(fetcher, new FutureCallback<Boolean>() {
                     public void onSuccess(Boolean explosion) {
-                       //it might be better handle it(parse/save to db) here
+                        //it might be better handle (parse/save to db) here
                         Log.info(" fetch worker done");
                     }
+
                     public void onFailure(Throwable thrown) {
                         Log.info(" fetch worker fail");
                     }
                 });
+                count++;
             }
         }
     }

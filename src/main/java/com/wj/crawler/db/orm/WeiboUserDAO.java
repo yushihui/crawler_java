@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.mongodb.client.model.Filters.lt;
+import static com.mongodb.client.model.Filters.gt;
 
 /**
  * Created by SYu on 3/14/2017.
@@ -23,7 +23,7 @@ public class WeiboUserDAO extends BaseDAO {
 
     public List<Document> getUserBasicInfos() {
         List<Document> documents = new ArrayList<Document>();
-        Iterator it = this.collection.find(lt("followers_count", FOLLOWERS_LIMIT)).iterator();
+        Iterator it = this.collection.find(gt("followers_count", FOLLOWERS_LIMIT)).iterator();
         while (it.hasNext()) {
             Document d = (Document) it.next();
             documents.add(d);

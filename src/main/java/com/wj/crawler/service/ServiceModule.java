@@ -6,7 +6,6 @@ import com.wj.crawler.common.ConfigModule;
 import com.wj.crawler.db.DbModule;
 import com.wj.crawler.db.orm.WeiboDAO;
 import com.wj.crawler.parser.WeiboParser;
-import com.wj.crawler.scheduler.ToutiaoFetchService;
 import com.wj.crawler.scheduler.WeiboFetchService;
 import dagger.Module;
 import dagger.Provides;
@@ -32,11 +31,11 @@ public final class ServiceModule {
         return new WeiboFetchService(config,dao,parser,cach);
     }
 
-    @Provides
-    @IntoSet
-    Service provideToutiaoFetchService() {
-        return new ToutiaoFetchService();
-    }
+//    @Provides
+//    @IntoSet
+//    Service provideToutiaoFetchService() {
+//        return new ToutiaoFetchService();
+//    }
 
 
 }

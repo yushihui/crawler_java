@@ -1,8 +1,11 @@
 package com.wj.crawler.service.fetch;
 
+import com.wj.crawler.common.BrowserProvider;
+import com.wj.crawler.common.Exceptions.FetchNotFoundException;
 import com.wj.crawler.db.orm.CrawUserInfo;
 import com.wj.crawler.db.orm.WeiboDAO;
 import com.wj.crawler.parser.WeiboParser;
+import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -49,6 +52,7 @@ public class WeiboCrawler implements Callable<Boolean> {
         try {
             HttpGet httpget = new HttpGet(user.weiboUrl() + page);
             //httpget.setHeaders(headers.toArray(new Header[headers.size()]));
+            httpget.setHeaders(new Header[]{BrowserProvider.getRandBrowserAgent()});
             CloseableHttpResponse response = httpClient.execute(httpget);
             Log.debug("going to parse page..." + page);
             List<Document> documents = parser.parserWeiboContent(response.getEntity());
@@ -59,8 +63,12 @@ public class WeiboCrawler implements Callable<Boolean> {
             } else {
                 return;
             }
-        } catch (Exception e) {
-            Log.error(" fetch fail for user " + user.getUserId());
+        }catch(FetchNotFoundException ffe){
+            Log.error("This might be network problem for user " + user.weiboUrl() + page);
+        }catch (Exception e) {
+            Log.error(" fetch fail for user " + user.weiboUrl() + page);
+            Log.error(" fetch fail for user " + e.getMessage());
+            e.printStackTrace();
             if (retry == 0) {
                 return;
             }
@@ -73,6 +81,9 @@ public class WeiboCrawler implements Callable<Boolean> {
     public boolean syncWithCache(List<Document> documents) {
         boolean found = false;
         for (Document d : documents) {
+            if(d == null || d.getString("id") == null){
+                continue;
+            }
             if (d.getString("id") == user.getLastPostId()) {
                 found = true;
                 break;
@@ -92,6 +103,7 @@ public class WeiboCrawler implements Callable<Boolean> {
 
 
     public Boolean call() throws Exception {
+        Log.error(" fetch for user " + user.getScreenName());
         doFetch();
         if (weibos.size() > 0) {
             dao.bulkInsert(weibos);

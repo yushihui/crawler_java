@@ -1,5 +1,6 @@
 package com.wj.crawler.parser;
 
+import com.wj.crawler.common.Exceptions.FetchNotFoundException;
 import org.apache.http.HttpEntity;
 import org.bson.Document;
 import org.slf4j.Logger;
@@ -52,7 +53,7 @@ public class WeiboParser {
     }
 
 
-    public List<Document> parserWeiboContent(HttpEntity entity) {
+    public List<Document> parserWeiboContent(HttpEntity entity) throws FetchNotFoundException {
         List<Document> wbs = new ArrayList<Document>();
         String content = readContent(entity);
         Document document = Document.parse(content);
@@ -60,7 +61,11 @@ public class WeiboParser {
         for (Document bo : documents) {
             wbs.add((Document) (bo.get("mblog")));
         }
+        if(wbs.size() == 0){
+            throw new FetchNotFoundException("page not found.");
+        }
         return wbs;
+
     }
 
 }

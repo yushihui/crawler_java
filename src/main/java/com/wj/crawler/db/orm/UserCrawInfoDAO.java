@@ -12,6 +12,8 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * Created by SYu on 3/23/2017.
  */
@@ -51,7 +53,7 @@ public class UserCrawInfoDAO extends BaseDAO {
             public CrawUserInfo apply(@Nullable Document document) {
                 CrawUserInfo user = new CrawUserInfo();
                 user.setUserId(document.getString("_id"));
-                user.setFollowersCount(document.getInteger("followers_count"));
+                user.setFollowersCount(checkNotNull(document.getInteger("followers_count")));
                 user.setScreenName(document.getString("screen_name"));
                 user.setLastPostId(document.getString("last_post_id"));
                 user.setLastFetchTime(document.getDate("last_fetch_time"));

@@ -62,6 +62,9 @@ public class CrawUserInfo implements Comparable {
     }
 
     public String weiboUrl() {
+        if(this.containerId == null){
+            this.containerId = "107603";
+        }
 
         return String.format(URL_FORMAT, this.userId, this.containerId + this.userId);
     }
@@ -110,7 +113,7 @@ public class CrawUserInfo implements Comparable {
 
         if (o instanceof CrawUserInfo) {
             CrawUserInfo that = (CrawUserInfo) o;
-            return this.followersCount - that.getFollowersCount();
+            return that.getFollowersCount() - this.followersCount;
         } else {
             Log.error("this is not a valid comparision");
         }
