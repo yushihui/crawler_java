@@ -3,7 +3,9 @@ package com.wj.crawler.scheduler;
 import com.google.common.util.concurrent.Service;
 import com.google.common.util.concurrent.ServiceManager;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Set;
 
 /**
  * Created by SYu on 3/21/2017.
@@ -14,7 +16,8 @@ public class SchedulerServiceManager {
 
     private ServiceManager serviceManager;
 
-    public SchedulerServiceManager(Iterable<? extends Service> services){
+    @Inject
+    public SchedulerServiceManager(Set<Service> services){
         serviceManager = new ServiceManager(services);
     }
 

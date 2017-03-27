@@ -96,6 +96,6 @@ public class WeiboCrawler implements Callable<Boolean> {
         if (weibos.size() > 0) {
             dao.bulkInsert(weibos);
         }
-        return true;//when we should return false;
+        return true;//todo when we should return false;
     }
 }
