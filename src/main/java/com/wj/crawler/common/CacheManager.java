@@ -26,6 +26,7 @@ public class CacheManager {
         this.userDao = userDao;
         this.proxyDao = proxyDao;
         initUserCache();
+        initWaitingUsers();
     }
 
     private Cache<String, ProxyObject> proxyCache = CacheBuilder.newBuilder()
@@ -44,9 +45,16 @@ public class CacheManager {
         waitingUsers = Queues.newPriorityBlockingQueue(userCache.asMap().values());
     }
 
+
+    public PriorityBlockingQueue<CrawUserInfo> getWaitingUsers(){
+        return this.waitingUsers;
+    }
+
     public void getNextWaitingUsers(Collection<CrawUserInfo> target, int size){
         this.waitingUsers.drainTo(target,size);
     }
+
+
 
     public void initUserCache() {
         Iterator<CrawUserInfo> it = userDao.loadCrawStatus().iterator();

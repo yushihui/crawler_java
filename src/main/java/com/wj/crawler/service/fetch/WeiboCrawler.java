@@ -11,7 +11,6 @@ import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -32,16 +31,15 @@ public class WeiboCrawler implements Callable<Boolean> {
     private static final Logger Log = LoggerFactory.getLogger(WeiboCrawler.class);
     private List<Document> weibos;
 
-    @Inject
-    public WeiboCrawler(WeiboDAO dao, WeiboParser parser) {
+
+    public WeiboCrawler(WeiboDAO dao, WeiboParser parser, CrawUserInfo user) {
         this.dao = dao;
         this.parser = parser;
+        this.user = user;
         weibos = new ArrayList<Document>();
     }
 
-    public void setUser(CrawUserInfo user) {
-        this.user = user;
-    }
+
 
     void doFetch() {
         if (page > MAX_PAGE) {

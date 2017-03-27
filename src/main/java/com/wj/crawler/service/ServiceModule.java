@@ -1,21 +1,18 @@
 package com.wj.crawler.service;
 
-import com.wj.crawler.parser.WeiboParser;
+import com.wj.crawler.common.ConfigModule;
+import com.wj.crawler.db.DbModule;
 import dagger.Module;
-import dagger.Provides;
-
-import javax.inject.Singleton;
 
 /**
  * Created by Administrator on 3/24/2017.
  */
 
-@Module
+@Module(includes = {
+        ConfigModule.class,
+        DbModule.class
+})
 public final class ServiceModule {
 
-    @Provides
-    @Singleton
-    WeiboParser providerWeiboParser() {
-        return new WeiboParser();
-    }
+
 }
