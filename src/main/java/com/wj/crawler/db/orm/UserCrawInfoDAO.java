@@ -45,6 +45,15 @@ public class UserCrawInfoDAO extends BaseDAO {
         collection.bulkWrite(users);
     }
 
+    public void updateOneDoc(CrawUserInfo user) {
+        Document filterDocument = new Document();
+        filterDocument.append("_id", String.valueOf(user.getUserId()));
+        Document doc = new Document();
+        doc.append("last_post_id", user.getLastPostId());
+        doc.append("last_fetch_time", user.getLastFetchTime());
+        collection.updateOne(filterDocument, new Document("$set", doc));
+    }
+
 
     public Iterable<CrawUserInfo> loadCrawStatus() {
         Iterable documents = collection.find();

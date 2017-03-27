@@ -2,6 +2,7 @@ package com.wj.crawler.service.fetch;
 
 import com.wj.crawler.common.BrowserProvider;
 import com.wj.crawler.common.Exceptions.FetchNotFoundException;
+import com.wj.crawler.common.Tuple;
 import com.wj.crawler.db.orm.CrawUserInfo;
 import com.wj.crawler.db.orm.WeiboDAO;
 import com.wj.crawler.parser.WeiboParser;
@@ -22,7 +23,7 @@ import java.util.concurrent.Callable;
 /**
  * Created by SYu on 3/24/2017.
  */
-public class WeiboCrawler implements Callable<Boolean> {
+public class WeiboCrawler implements Callable<Tuple<Integer, CrawUserInfo>> {
 
     private int retry = 3;
     private int MAX_PAGE = 3;
@@ -41,7 +42,6 @@ public class WeiboCrawler implements Callable<Boolean> {
         this.user = user;
         weibos = new ArrayList<Document>();
     }
-
 
 
     void doFetch() {
@@ -63,9 +63,9 @@ public class WeiboCrawler implements Callable<Boolean> {
             } else {
                 return;
             }
-        }catch(FetchNotFoundException ffe){
+        } catch (FetchNotFoundException ffe) {
             Log.error("This might be network problem for user " + user.weiboUrl() + page);
-        }catch (Exception e) {
+        } catch (Exception e) {
             Log.error(" fetch fail for user " + user.weiboUrl() + page);
             Log.error(" fetch fail for user " + e.getMessage());
             e.printStackTrace();
@@ -81,7 +81,7 @@ public class WeiboCrawler implements Callable<Boolean> {
     public boolean syncWithCache(List<Document> documents) {
         boolean found = false;
         for (Document d : documents) {
-            if(d == null || d.getString("id") == null){
+            if (d == null || d.getString("id") == null) {
                 continue;
             }
             if (d.getString("id") == user.getLastPostId()) {
@@ -96,18 +96,20 @@ public class WeiboCrawler implements Callable<Boolean> {
 
         } else {
             user.setLastPostId(documents.get(0).getString("id")); //todo update cache and crawUserInfo
+
         }
         user.setLastFetchTime(Calendar.getInstance().getTime());
+
         return found;
     }
 
 
-    public Boolean call() throws Exception {
+    public Tuple<Integer, CrawUserInfo> call() throws Exception {
         Log.error(" fetch for user " + user.getScreenName());
         doFetch();
         if (weibos.size() > 0) {
             dao.bulkInsert(weibos);
         }
-        return true;//todo when we should return false;
+        return new Tuple<Integer, CrawUserInfo>(weibos.size(), user);
     }
 }
