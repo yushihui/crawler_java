@@ -15,7 +15,7 @@ import static com.mongodb.client.model.Filters.gt;
  */
 public class WeiboUserDAO extends BaseDAO {
 
-    private final static int FOLLOWERS_LIMIT = 100000; // 100K
+    private final static int FOLLOWERS_LIMIT = 200000; // 200K
 
     public WeiboUserDAO(MongoCollection collection) {
         super(collection);

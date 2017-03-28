@@ -84,7 +84,7 @@ public class WeiboCrawler implements Callable<Tuple<Integer, CrawUserInfo>> {
             if (d == null || d.getString("id") == null) {
                 continue;
             }
-            if (d.getString("id") == user.getLastPostId()) {
+            if (d.getString("id").equalsIgnoreCase(user.getLastPostId())) {
                 found = true;
                 break;
             } else {
@@ -92,13 +92,7 @@ public class WeiboCrawler implements Callable<Tuple<Integer, CrawUserInfo>> {
             }
         }
 
-        if (documents.get(0).getString("id") == user.getLastPostId()) {
 
-        } else {
-            user.setLastPostId(documents.get(0).getString("id")); //todo update cache and crawUserInfo
-
-        }
-        user.setLastFetchTime(Calendar.getInstance().getTime());
 
         return found;
     }
@@ -108,6 +102,8 @@ public class WeiboCrawler implements Callable<Tuple<Integer, CrawUserInfo>> {
         Log.error(" fetch for user " + user.getScreenName());
         doFetch();
         if (weibos.size() > 0) {
+            user.setLastPostId(weibos.get(0).getString("id"));
+            user.setLastFetchTime(Calendar.getInstance().getTime());
             dao.bulkInsert(weibos);
         }
         return new Tuple<Integer, CrawUserInfo>(weibos.size(), user);

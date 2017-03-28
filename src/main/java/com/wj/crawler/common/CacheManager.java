@@ -8,7 +8,6 @@ import com.wj.crawler.db.orm.ProxyDAO;
 import com.wj.crawler.db.orm.UserCrawInfoDAO;
 
 import javax.inject.Inject;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -26,7 +25,6 @@ public class CacheManager {
         this.userDao = userDao;
         this.proxyDao = proxyDao;
         initUserCache();
-        initWaitingUsers();
     }
 
     private Cache<String, ProxyObject> proxyCache = CacheBuilder.newBuilder()
@@ -39,19 +37,8 @@ public class CacheManager {
             .build();
 
 
-    private PriorityBlockingQueue<CrawUserInfo> waitingUsers;
-
-    public void initWaitingUsers() {
-        waitingUsers = Queues.newPriorityBlockingQueue(userCache.asMap().values());
-    }
-
-
     public PriorityBlockingQueue<CrawUserInfo> getWaitingUsers(){
-        return this.waitingUsers;
-    }
-
-    public void getNextWaitingUsers(Collection<CrawUserInfo> target, int size){
-        this.waitingUsers.drainTo(target,size);
+        return Queues.newPriorityBlockingQueue(userCache.asMap().values());
     }
 
 
