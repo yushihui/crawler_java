@@ -2,6 +2,7 @@ package com.wj.crawler.scheduler;
 
 import com.google.common.util.concurrent.*;
 import com.wj.crawler.common.CacheManager;
+import com.wj.crawler.common.TimeUtils;
 import com.wj.crawler.common.Tuple;
 import com.wj.crawler.db.orm.CrawUserInfo;
 import com.wj.crawler.db.orm.UserCrawInfoDAO;
@@ -34,13 +35,14 @@ public class WeiboFetchService extends AbstractScheduledService {
     private final UserCrawInfoDAO crawDao;
     private final WeiboParser parser;
     private final CacheManager cache;
+    private long roundStartTime;
 
     private int hours = 1;
 
     private Callable<Boolean> usageComputation =
             new Callable<Boolean>() {
                 public Boolean call() throws Exception {
-                    Log.info("{}: this round is done",serviceName());
+                    Log.info("{}: this round is done and which takes {}", serviceName(), timeConsume());
                     return true;
                 }
             };
@@ -54,12 +56,19 @@ public class WeiboFetchService extends AbstractScheduledService {
         this.crawDao = crawDao;
     }
 
+    private String timeConsume() {
+        long millis = System.currentTimeMillis() - roundStartTime;
+        return TimeUtils.Mills2PrettyString(millis);
+    }
+
     protected void startUp() throws Exception {// get
         hours = Integer.parseInt(config.getProperty("weibo.freq", "6"));
-        service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(5));
+        String threadSize = config.getProperty("weibo.crawler.threads", "5");
+        service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(Integer.parseInt(threadSize)));
     }
 
     protected void runOneIteration() throws Exception {
+        roundStartTime = System.currentTimeMillis();
         PriorityBlockingQueue<CrawUserInfo> users = cache.getWaitingUsers();
         int maxCount = 10;
         int count = 0;
@@ -67,12 +76,12 @@ public class WeiboFetchService extends AbstractScheduledService {
 
         while (true) {
             if (users.isEmpty()) {
-                Log.info("all fetch worker started");
+                Log.info("all fetch workers have started");
                 break;
             }
             if (count == maxCount) {
                 count = 0;
-                Thread.sleep(100 * 1000);
+                Thread.sleep(60 * 1000);
             }
             CrawUserInfo user = users.take();
             if (user != null) {
@@ -100,7 +109,7 @@ public class WeiboFetchService extends AbstractScheduledService {
 
         }
 
-         Futures.whenAllComplete(futures).call(usageComputation);
+        Futures.whenAllComplete(futures).call(usageComputation);
     }
 
     protected void shutDown() throws Exception {

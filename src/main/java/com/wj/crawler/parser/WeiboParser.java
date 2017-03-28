@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -59,7 +60,13 @@ public class WeiboParser {
         Document document = Document.parse(content);
         List<Document> documents = (List<Document>) document.get("cards");
         for (Document bo : documents) {
-            wbs.add((Document) (bo.get("mblog")));
+            Document tweet = (Document) (bo.get("mblog"));
+            if(tweet == null){
+                continue;
+            }
+            tweet.append("f_time", new Date());
+            //tweet.remove("user");// todo add fetch time and remove user info
+            wbs.add(tweet);
         }
         if(wbs.size() == 0){
             throw new FetchNotFoundException("page not found.");
