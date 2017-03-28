@@ -99,7 +99,7 @@ public class WeiboCrawler implements Callable<Tuple<Integer, CrawUserInfo>> {
 
 
     public Tuple<Integer, CrawUserInfo> call() throws Exception {
-        Log.error(" fetch for user " + user.getScreenName());
+        Log.debug(" fetch for user " + user.getScreenName());
         doFetch();
         if (weibos.size() > 0) {
             user.setLastPostId(weibos.get(0).getString("id"));
