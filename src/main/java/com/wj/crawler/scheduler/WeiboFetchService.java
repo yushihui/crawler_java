@@ -38,14 +38,12 @@ public class WeiboFetchService extends AbstractScheduledService {
     private long roundStartTime;
 
     private int hours = 1;
+    private int tweetsCount = 0;
 
-    private Callable<Boolean> usageComputation =
-            new Callable<Boolean>() {
-                public Boolean call() throws Exception {
-                    Log.info("{}: this round is done and which takes {}", serviceName(), timeConsume());
-                    return true;
-                }
-            };
+    private Callable<Boolean> usageComputation = () -> {
+        Log.info("{}: this round is done fetch {} tweets and which takes {}", serviceName(), tweetsCount, timeConsume());
+        return true;
+    };
 
     @Inject
     public WeiboFetchService(Properties config, WeiboDAO dao, WeiboParser parser, CacheManager cache, UserCrawInfoDAO crawDao) {
@@ -58,6 +56,7 @@ public class WeiboFetchService extends AbstractScheduledService {
 
     private String timeConsume() {
         long millis = System.currentTimeMillis() - roundStartTime;
+        Log.debug("took --" + millis);
         return TimeUtils.Mills2PrettyString(millis);
     }
 
@@ -72,6 +71,7 @@ public class WeiboFetchService extends AbstractScheduledService {
         PriorityBlockingQueue<CrawUserInfo> users = cache.getWaitingUsers();
         int maxCount = 10;
         int count = 0;
+        tweetsCount = 0;
         List<ListenableFuture<Tuple<Integer, CrawUserInfo>>> futures = new ArrayList();
 
         while (true) {
@@ -91,6 +91,7 @@ public class WeiboFetchService extends AbstractScheduledService {
                     public void onSuccess(Tuple<Integer, CrawUserInfo> result) {
                         //it might be better handle (parse/save to db) here
                         Log.info("{}: crawler fetched --{} tweets.", result.n.getScreenName(), result.t);
+                        tweetsCount += result.t;
 
                         if (result.t > 0) {
                             cache.addUser(result.n);//update cache

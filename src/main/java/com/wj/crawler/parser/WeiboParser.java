@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Created by SYu on 3/16/2017.
@@ -29,9 +30,9 @@ public class WeiboParser {
         String content = readContent(entity);
         Document document = Document.parse(content);
         List<Document> documents = (List<Document>) document.get("cards");
-        for (Document bo : documents) {
-            users.add((Document) (bo.get("user")));//todo if followers < 100k we could ignore
-        }
+        documents.forEach(
+                bo -> users.add((Document) (bo.get("user")))
+        );
         return users;
 
     }
@@ -49,7 +50,7 @@ public class WeiboParser {
             e.printStackTrace();
         }
         String ret = result.toString();
-        Log.info("response content: " + ret);
+        Log.debug("response content: " + ret);
         return ret;
     }
 
@@ -59,16 +60,18 @@ public class WeiboParser {
         String content = readContent(entity);
         Document document = Document.parse(content);
         List<Document> documents = (List<Document>) document.get("cards");
-        for (Document bo : documents) {
-            Document tweet = (Document) (bo.get("mblog"));
-            if(tweet == null){
-                continue;
+        Stream<Document> parallelStream = documents.parallelStream();
+        parallelStream.forEach(d -> {
+            Document tweet = (Document) (d.get("mblog"));
+            if (tweet == null) {
+            } else {
+                tweet.append("f_time", new Date());
+                //tweet.remove("user");// todo add fetch time and remove user info
+                wbs.add(tweet);
             }
-            tweet.append("f_time", new Date());
-            //tweet.remove("user");// todo add fetch time and remove user info
-            wbs.add(tweet);
-        }
-        if(wbs.size() == 0){
+
+        });
+        if (wbs.size() == 0) {
             throw new FetchNotFoundException("page not found.");
         }
         return wbs;
