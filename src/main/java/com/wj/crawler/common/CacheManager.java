@@ -6,6 +6,8 @@ import com.google.common.collect.Queues;
 import com.wj.crawler.db.orm.CrawUserInfo;
 import com.wj.crawler.db.orm.ProxyDAO;
 import com.wj.crawler.db.orm.UserCrawInfoDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.Iterator;
@@ -19,6 +21,8 @@ public class CacheManager {
 
     private final UserCrawInfoDAO userDao;
     private final ProxyDAO proxyDao;
+
+    private static final Logger Log = LoggerFactory.getLogger(CacheManager.class);
 
     @Inject
     public CacheManager(UserCrawInfoDAO userDao, ProxyDAO proxyDao) {
@@ -37,10 +41,10 @@ public class CacheManager {
             .build();
 
 
-    public PriorityBlockingQueue<CrawUserInfo> getWaitingUsers(){
+    public PriorityBlockingQueue<CrawUserInfo> getWaitingUsers() {
+        Log.debug("cached users size:{}", userCache.size());
         return Queues.newPriorityBlockingQueue(userCache.asMap().values());
     }
-
 
 
     public void initUserCache() {
