@@ -35,12 +35,11 @@ public class WeiboCrawler implements Callable<Tuple<Integer, CrawUserInfo>> {
     private static final Logger Log = LoggerFactory.getLogger(WeiboCrawler.class);
     private List<Document> weibos;
 
-
     public WeiboCrawler(WeiboDAO dao, WeiboParser parser, CrawUserInfo user) {
         this.dao = dao;
         this.parser = parser;
         this.user = user;
-        weibos = new ArrayList<Document>();
+        weibos = new ArrayList<>();
     }
 
 
@@ -66,13 +65,16 @@ public class WeiboCrawler implements Callable<Tuple<Integer, CrawUserInfo>> {
         } catch (FetchNotFoundException ffe) {
             Log.error("This might be network problem for user " + user.weiboUrl() + page);
         } catch (Exception e) {
-            Log.error(" fetch fail for user " + user.weiboUrl() + page);
-            Log.error(" fetch fail for user " + e.getMessage());
+            Log.error(" fetch {} fail {}" , user.getScreenName(), user.weiboUrl() + page);
+            Log.error(e.getMessage());
             e.printStackTrace();
             if (retry == 0) {
                 return;
             }
             retry--;
+
+
+            Log.info("{} retry ...", (3 - retry));
             doFetch();
         }
     }
@@ -91,9 +93,6 @@ public class WeiboCrawler implements Callable<Tuple<Integer, CrawUserInfo>> {
                 weibos.add(d);
             }
         }
-
-
-
         return found;
     }
 
@@ -106,6 +105,6 @@ public class WeiboCrawler implements Callable<Tuple<Integer, CrawUserInfo>> {
             user.setLastFetchTime(Calendar.getInstance().getTime());
             dao.bulkInsert(weibos);
         }
-        return new Tuple<Integer, CrawUserInfo>(weibos.size(), user);
+        return new Tuple<>(weibos.size(), user);
     }
 }
