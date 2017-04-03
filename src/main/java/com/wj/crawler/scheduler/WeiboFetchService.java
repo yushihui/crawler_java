@@ -42,6 +42,7 @@ public class WeiboFetchService extends AbstractScheduledService {
 
     private Callable<Boolean> usageComputation = () -> {
         Log.info("{}: this round is done fetch {} tweets and which takes {}", serviceName(), tweetsCount, timeConsume());
+        service.shutdownNow();
         return true;
     };
 
@@ -67,6 +68,10 @@ public class WeiboFetchService extends AbstractScheduledService {
     }
 
     protected void runOneIteration() throws Exception {
+        String threadSize = config.getProperty("weibo.crawler.threads", "5");
+        if (service != null && service.isShutdown()) {
+            service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(Integer.parseInt(threadSize)));
+        }
         roundStartTime = System.currentTimeMillis();
         PriorityBlockingQueue<CrawUserInfo> users = cache.getWaitingUsers();
         int maxCount = 10;
