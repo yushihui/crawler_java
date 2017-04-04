@@ -72,8 +72,6 @@ public class WeiboCrawler implements Callable<Tuple<Integer, CrawUserInfo>> {
                 return;
             }
             retry--;
-
-
             Log.info("{} retry ...", (3 - retry));
             doFetch();
         }
