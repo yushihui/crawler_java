@@ -13,13 +13,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by SYu on 3/21/2017.
@@ -41,10 +42,10 @@ public class WeiboFetchService extends AbstractScheduledService {
     private int tweetsCount = 0;
 
     private Callable<Boolean> usageComputation = () -> {
-        try{
+        try {
             Log.info("{}: this round is done fetch {} tweets and which takes {}", serviceName(), tweetsCount, timeConsume());
-        }catch (Exception e){
-            Log.error("usage error {}",e.getMessage());
+        } catch (Exception e) {
+            Log.error("usage error {}", e.getMessage());
         }
 
         return true;
@@ -124,7 +125,14 @@ public class WeiboFetchService extends AbstractScheduledService {
 
     protected Scheduler scheduler() {
 
-        return Scheduler.newFixedRateSchedule(0, hours, TimeUnit.HOURS);
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Shanghai"));
+        int curHour = now.getHour();
+        int next_hours = hours;
+        if (curHour >= 0 && curHour < 7) {
+            next_hours = 7 - curHour;
+        }
+
+        return new WeiboCustomerSchduler(next_hours);
     }
 
     protected String serviceName() {
