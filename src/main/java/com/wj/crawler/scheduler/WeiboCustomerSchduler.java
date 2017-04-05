@@ -1,23 +1,39 @@
 package com.wj.crawler.scheduler;
 
 import com.google.common.util.concurrent.AbstractScheduledService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by Administrator on 4/4/2017.
+ * Created by Syu on 4/4/2017.
  */
 public class WeiboCustomerSchduler extends AbstractScheduledService.CustomScheduler {
 
-    private int nextHour;
+    private static final Logger Log = LoggerFactory.getLogger(WeiboCustomerSchduler.class);
 
+    public WeiboCustomerSchduler(){
 
-    public WeiboCustomerSchduler(int hours){
-        nextHour = hours;
     }
 
     @Override
+    /**
+     * try best to ignore doing fetch during midnight(0 - 7:00 AM) or just fetch inactive users during this period(@todo)
+     */
     protected Schedule getNextSchedule() throws Exception {
-        return new Schedule(nextHour, TimeUnit.HOURS);
+
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Shanghai"));
+        int curHour = now.getHour();
+        int next_hours = 2;
+        if (curHour >= 0 && curHour < 7) {
+            next_hours = 7 - curHour;
+        }
+
+        Log.info(" next round is going to run in {} hours later", next_hours);
+        //return new Schedule(next_hours, TimeUnit.MINUTES);
+        return new Schedule(next_hours, TimeUnit.HOURS);
     }
 }

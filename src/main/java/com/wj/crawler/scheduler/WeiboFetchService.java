@@ -13,8 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -124,15 +122,7 @@ public class WeiboFetchService extends AbstractScheduledService {
     }
 
     protected Scheduler scheduler() {
-
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Shanghai"));
-        int curHour = now.getHour();
-        int next_hours = hours;
-        if (curHour >= 0 && curHour < 7) {
-            next_hours = 7 - curHour;
-        }
-
-        return new WeiboCustomerSchduler(next_hours);
+       return new WeiboCustomerSchduler();
     }
 
     protected String serviceName() {
