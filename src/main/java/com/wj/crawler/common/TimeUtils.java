@@ -3,7 +3,7 @@ package com.wj.crawler.common;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by Administrator on 3/28/2017.
+ * Created by Syu on 3/28/2017.
  */
 public class TimeUtils {
 
