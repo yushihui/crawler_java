@@ -7,6 +7,8 @@
     </appender>
 
     <logger name="com.wj" level="debug"/>
+    <logger name="com.confluence" level="debug"/>
+    <logger name="com.shihui.nlp" level="debug"/>
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>craw_wj.log</file>
