@@ -60,7 +60,7 @@ public class WeiboUserFetcher extends AbstractFetcher {
     }
 
     public void doFetchUser() {
-        doFetch(3, 10, 3);
+        doFetch(1, 10, 3);
     }
 
 

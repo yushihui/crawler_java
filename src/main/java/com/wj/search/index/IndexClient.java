@@ -20,11 +20,10 @@ public class IndexClient {
     private static final Logger Log = LoggerFactory.getLogger(IndexClient.class);
 
 
-    public IndexClient(Properties config){
+    public IndexClient(Properties config) {
 
-        String elastic_ip = config.getProperty("elastic.ip");
-        int port = Integer.parseInt(config.getProperty("elastic.ip","9200"));
-
+        String elastic_ip = config.getProperty("elastic.ip", "localhost");
+        int port = Integer.parseInt(config.getProperty("elastic.port", "9200"));
         try {
             client = new PreBuiltTransportClient(Settings.EMPTY)
                     .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(elastic_ip), port));
@@ -37,7 +36,7 @@ public class IndexClient {
     }
 
 
-    public TransportClient getClient(){
+    public TransportClient getClient() {
         return client;
     }
 
