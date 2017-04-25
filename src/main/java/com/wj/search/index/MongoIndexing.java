@@ -22,6 +22,8 @@ public class MongoIndexing implements InIndex<Document>, Callable<Boolean> {
 
 
     private TransportClient client;
+    private Iterable<Document> documents;
+    private String collection;
 
     private static final String INDEX_PREFIX = "mongo-";
     private static final String INDEX_TYPE = "MONGO";
@@ -31,6 +33,14 @@ public class MongoIndexing implements InIndex<Document>, Callable<Boolean> {
     @Inject
     public MongoIndexing(IndexClient client) {
         this.client = client.getClient();
+    }
+
+
+    public MongoIndexing(Iterable<Document> documents, String collection, IndexClient client) {
+        this.client = client.getClient();
+        this.collection = collection;
+        this.documents = documents;
+
     }
 
 
@@ -84,6 +94,6 @@ public class MongoIndexing implements InIndex<Document>, Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
-        return null;
+        return bulkIndexing(documents, collection);
     }
 }

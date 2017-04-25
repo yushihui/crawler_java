@@ -66,7 +66,6 @@ public class WeiboParser {
             if (tweet == null) {
             } else {
                 tweet.append("f_time", new Date());
-                //tweet.remove("user");// todo add fetch time and remove user info
                 wbs.add(tweet);
             }
 

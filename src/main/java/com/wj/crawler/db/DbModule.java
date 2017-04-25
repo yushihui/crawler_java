@@ -5,10 +5,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.wj.crawler.common.CacheManager;
 import com.wj.crawler.common.ConfigModule;
-import com.wj.crawler.db.orm.ProxyDAO;
-import com.wj.crawler.db.orm.UserCrawInfoDAO;
-import com.wj.crawler.db.orm.WeiboDAO;
-import com.wj.crawler.db.orm.WeiboUserDAO;
+import com.wj.crawler.db.orm.*;
 import dagger.Module;
 import dagger.Provides;
 
@@ -27,6 +24,7 @@ public final class DbModule {
     private final String DEFAULT_WEIBO_COLL_NAME = "weibo";
     private final String DEFAULT_WEIBO_USER_CRAW_COLL_NAME = "weibo_user_craw";
     private final String DEFAULT_PROXY_COLL_NAME = "proxy";
+    private final String DEFAULT_ELASTIC_INDEX_COLL_NAME = "elastic_search_index";
 
     @Provides
     @Singleton
@@ -53,6 +51,13 @@ public final class DbModule {
     MongoCollection provideWeiboCollection(MongoDatabase db) {
         return getCollection(db, DEFAULT_WEIBO_COLL_NAME);
     }
+
+    @Provides
+    @Named("elastic_index")
+    MongoCollection provideElasticIndexCollection(MongoDatabase db) {
+        return getCollection(db, DEFAULT_ELASTIC_INDEX_COLL_NAME);
+    }
+
 
     @Provides
     @Named("proxy")
@@ -89,6 +94,11 @@ public final class DbModule {
     @Provides
     ProxyDAO providerProxyDAO(@Named("proxy") MongoCollection collection) {
         return new ProxyDAO(collection);
+    }
+
+    @Provides
+    IndexDAO providerElasticIndexDAO(@Named("elastic_index") MongoCollection collection) {
+        return new IndexDAO(collection);
     }
 
     @Provides
