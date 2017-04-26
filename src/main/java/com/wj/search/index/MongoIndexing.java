@@ -18,17 +18,19 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 /**
  * Created by Syu on 4/21/2017.
  */
-public class MongoIndexing implements InIndex<Document>, Callable<Boolean> {
+public class MongoIndexing implements InIndex<Document>, Callable<Integer> {
 
 
     private TransportClient client;
     private Iterable<Document> documents;
     private String collection;
+    private String indexField;
 
     private static final String INDEX_PREFIX = "mongo-";
-    private static final String INDEX_TYPE = "MONGO";
+    private static final String INDEX_TYPE = "mongo";
 
     private static final Logger Log = LoggerFactory.getLogger(MongoIndexing.class);
+
 
     @Inject
     public MongoIndexing(IndexClient client) {
@@ -36,24 +38,26 @@ public class MongoIndexing implements InIndex<Document>, Callable<Boolean> {
     }
 
 
-    public MongoIndexing(Iterable<Document> documents, String collection, IndexClient client) {
+    public MongoIndexing(Iterable<Document> documents, String collection, IndexClient client, String indexField) {
         this.client = client.getClient();
         this.collection = collection;
         this.documents = documents;
+        this.indexField = indexField;
 
     }
 
 
     @Override
-    public boolean bulkIndexing(Iterable<Document> documents, String collection) {
-        Log.debug("{} :start indexing ...", collection);
+    public int bulkIndexing(Iterable<Document> documents, String collection) {
+        int indexedDocuments = 0;
+
         BulkRequestBuilder bulkRequest = client.prepareBulk();
         documents.forEach(d -> {
                     try {
-                        bulkRequest.add(client.prepareIndex(INDEX_PREFIX + collection, INDEX_TYPE,
+                        bulkRequest.add(client.prepareIndex(INDEX_PREFIX + collection.toLowerCase(), INDEX_TYPE,
                                 d.getObjectId("_id").toHexString()).setSource(jsonBuilder()
                                 .startObject()
-                                .field("content", d.getString("text"))
+                                .field("content", d.getString(indexField))
                                 .endObject()
                         ));
                     } catch (IOException e) {
@@ -61,7 +65,12 @@ public class MongoIndexing implements InIndex<Document>, Callable<Boolean> {
                     }
                 }
         );
+        indexedDocuments = bulkRequest.numberOfActions();
+        if (indexedDocuments == 0) {
+            return 0;
+        }
 
+        long start = System.currentTimeMillis();
         try {
             BulkResponse bulkResponse = bulkRequest.execute().get();
             if (bulkResponse.hasFailures()) {
@@ -73,9 +82,8 @@ public class MongoIndexing implements InIndex<Document>, Callable<Boolean> {
             e.printStackTrace();
         }
 
-        Log.debug("{} :indexing done...", collection);
-
-        return true;
+        Log.info("one bulk indexing takes {}", (System.currentTimeMillis() - start));
+        return indexedDocuments;
     }
 
     @Override
@@ -93,7 +101,7 @@ public class MongoIndexing implements InIndex<Document>, Callable<Boolean> {
 
 
     @Override
-    public Boolean call() throws Exception {
+    public Integer call() throws Exception {
         return bulkIndexing(documents, collection);
     }
 }

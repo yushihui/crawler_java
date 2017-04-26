@@ -39,6 +39,23 @@ public class WeiboFetchService extends AbstractScheduledService {
     private int hours = 1;
     private int tweetsCount = 0;
 
+    private FutureCallback fetchBack = new FutureCallback<Tuple<Integer, CrawUserInfo>>() {
+        public void onSuccess(Tuple<Integer, CrawUserInfo> result) {
+            //it might be better handle (parse/save to db) here
+            Log.info("{}: crawler fetched --{} tweets.", result.n.getScreenName(), result.t);
+            tweetsCount += result.t;
+            if (result.t > 0) {
+                cache.addUser(result.n);//update cache
+                crawDao.updateOneDoc(result.n);
+
+            }
+        }
+
+        public void onFailure(Throwable thrown) {
+            Log.info(" fetch worker fail");
+        }
+    };
+
     private Callable<Boolean> usageComputation = () -> {
         try {
             Log.info("{}: this round is done fetch {} tweets and which takes {}", serviceName(), tweetsCount, timeConsume());
@@ -60,7 +77,6 @@ public class WeiboFetchService extends AbstractScheduledService {
 
     private String timeConsume() {
         long millis = System.currentTimeMillis() - roundStartTime;
-        Log.debug("took --" + millis);
         return TimeUtils.Mills2PrettyString(millis);
     }
 
@@ -71,13 +87,15 @@ public class WeiboFetchService extends AbstractScheduledService {
     }
 
     protected void runOneIteration() throws Exception {
+        if(true){
+            return;
+        }
         roundStartTime = System.currentTimeMillis();
         PriorityBlockingQueue<CrawUserInfo> users = cache.getWaitingUsers();
         int maxCount = 10;
         int count = 0;
         tweetsCount = 0;
         List<ListenableFuture<Tuple<Integer, CrawUserInfo>>> futures = new ArrayList();
-
         while (true) {
             if (users.isEmpty()) {
                 Log.info("all fetch workers have started");
@@ -91,24 +109,7 @@ public class WeiboFetchService extends AbstractScheduledService {
             if (user != null) {
                 ListenableFuture<Tuple<Integer, CrawUserInfo>> fetcher = service.submit(new WeiboCrawler(dao, parser, user));
                 futures.add(fetcher);
-                Futures.addCallback(fetcher, new FutureCallback<Tuple<Integer, CrawUserInfo>>() {
-                    public void onSuccess(Tuple<Integer, CrawUserInfo> result) {
-                        //it might be better handle (parse/save to db) here
-                        Log.info("{}: crawler fetched --{} tweets.", result.n.getScreenName(), result.t);
-                        tweetsCount += result.t;
-
-                        if (result.t > 0) {
-                            cache.addUser(result.n);//update cache
-                            crawDao.updateOneDoc(result.n);
-
-                        }
-                    }
-
-                    public void onFailure(Throwable thrown) {
-                        Log.info(" fetch worker fail");
-                    }
-                });
-
+                Futures.addCallback(fetcher, fetchBack);
                 count++;
             }
 
@@ -122,7 +123,7 @@ public class WeiboFetchService extends AbstractScheduledService {
     }
 
     protected Scheduler scheduler() {
-       return new WeiboCustomerSchduler();
+        return new WeiboCustomerSchduler();
     }
 
     protected String serviceName() {

@@ -6,6 +6,7 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.wj.crawler.db.Named;
 import com.wj.search.index.IndexClient;
 import com.wj.search.index.MongoIndexing;
 import org.bson.Document;
@@ -20,15 +21,14 @@ import java.util.concurrent.Executors;
  */
 public class MongoBridge extends AbstractScheduledService {
 
-    private MongoIndexing index;
+
     private MongoDatabase db;
     private IndexClient client;
-
     private final int PAGE_SIZE = 1000;
 
     @Inject
-    public MongoBridge(MongoIndexing index, MongoDatabase db, IndexClient client) {
-        this.index = index;
+    public MongoBridge(@Named("el") MongoDatabase db, IndexClient client) {
+
         this.db = db;
         this.client = client;
     }
@@ -38,14 +38,14 @@ public class MongoBridge extends AbstractScheduledService {
 
         ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(10));
         MongoCollection collec = db.getCollection(collection);
-        List<ListenableFuture<Boolean>> futures = new ArrayList();
+        List<ListenableFuture<Integer>> futures = new ArrayList();
         long total = 0;
         if (fromBegining) {
             total = collec.count();
             int page = 0;
             while (page * PAGE_SIZE < total) {
                 Iterable<Document> docs = collec.find().skip(page * PAGE_SIZE).limit(PAGE_SIZE);
-                ListenableFuture<Boolean> indexFuture = service.submit(new MongoIndexing(docs, collection, client));
+                ListenableFuture<Integer> indexFuture = service.submit(new MongoIndexing(docs, collection, client, "text"));
                 futures.add(indexFuture);
                 page++;
             }

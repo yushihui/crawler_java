@@ -1,6 +1,8 @@
 package com.wj.crawler.db;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.wj.crawler.common.CacheManager;
@@ -10,6 +12,7 @@ import dagger.Module;
 import dagger.Provides;
 
 import javax.inject.Singleton;
+import java.util.Arrays;
 import java.util.Properties;
 
 /**
@@ -29,49 +32,65 @@ public final class DbModule {
     @Provides
     @Singleton
     MongoClient providerMongoCollection(Properties config) {
+        boolean auth = config.getProperty("db.auth").equalsIgnoreCase("true");
+        if(auth){
+            MongoCredential credential = MongoCredential.createCredential(config.getProperty("db.user"),
+                    config.getProperty("db.user.location"), config.getProperty("db.user.pwd").toCharArray());
+            return new MongoClient(new ServerAddress(config.getProperty("db.server"), Integer.parseInt(config.getProperty("db.port"))),
+                    Arrays.asList(credential));
+        }
         return new MongoClient(config.getProperty("db.server"), Integer.parseInt(config.getProperty("db.port")));
     }
 
     @Provides
+    @Named("wb")
     @Singleton
     MongoDatabase providerMongoDB(MongoClient conn, Properties config) {
         String dbName = config.getProperty("db.name", DEFAULT_DB_NAME);
         return conn.getDatabase(dbName);
     }
 
+    @Provides
+    @Named("el")
+    @Singleton
+    MongoDatabase providerIndexMongoDB(MongoClient conn, Properties config) {
+        String dbName = config.getProperty("elastic.mongo.db", DEFAULT_DB_NAME);
+        return conn.getDatabase(dbName);
+    }
+
 
     @Provides
     @Named("wb_user")
-    MongoCollection provideUserCollection(MongoDatabase db) {
+    MongoCollection provideUserCollection(@Named("wb") MongoDatabase db) {
         return getCollection(db, DEFAULT_USER_COLL_NAME);
     }
 
     @Provides
     @Named("weibo")
-    MongoCollection provideWeiboCollection(MongoDatabase db) {
+    MongoCollection provideWeiboCollection(@Named("wb") MongoDatabase db) {
         return getCollection(db, DEFAULT_WEIBO_COLL_NAME);
     }
 
     @Provides
     @Named("elastic_index")
-    MongoCollection provideElasticIndexCollection(MongoDatabase db) {
+    MongoCollection provideElasticIndexCollection(@Named("wb") MongoDatabase db) {
         return getCollection(db, DEFAULT_ELASTIC_INDEX_COLL_NAME);
     }
 
 
     @Provides
     @Named("proxy")
-    MongoCollection provideProxyCollection(MongoDatabase db) {
+    MongoCollection provideProxyCollection(@Named("wb") MongoDatabase db) {
         return getCollection(db, DEFAULT_PROXY_COLL_NAME);
     }
 
     @Provides
     @Named("wb_user_craw")
-    MongoCollection provideWeiboUserCrawCollection(MongoDatabase db) {
+    MongoCollection provideWeiboUserCrawCollection(@Named("wb") MongoDatabase db) {
         return getCollection(db, DEFAULT_WEIBO_USER_CRAW_COLL_NAME);
     }
 
-    private MongoCollection getCollection(MongoDatabase db, String coll) {
+    private MongoCollection getCollection(@Named("wb") MongoDatabase db, String coll) {
         MongoCollection collection = db.getCollection(coll);
         if (collection == null) {
             db.createCollection(coll);
@@ -108,8 +127,8 @@ public final class DbModule {
 
     @Provides
     @Singleton
-    CacheManager providerCacheManager(UserCrawInfoDAO userDao, ProxyDAO proxyDao) {
-        return new CacheManager(userDao,proxyDao);
+    CacheManager providerCacheManager(UserCrawInfoDAO userDao, ProxyDAO proxyDao, IndexDAO indexDAO) {
+        return new CacheManager(userDao, proxyDao, indexDAO);
     }
 }
 

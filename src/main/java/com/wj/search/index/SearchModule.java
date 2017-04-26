@@ -1,7 +1,5 @@
 package com.wj.search.index;
 
-import com.mongodb.client.MongoDatabase;
-import com.wj.adaptor.MongoBridge;
 import com.wj.crawler.common.ConfigModule;
 import com.wj.crawler.db.DbModule;
 import dagger.Module;
@@ -29,10 +27,6 @@ public final class SearchModule {
         return new MongoIndexing(client);
     }
 
-    @Provides
-    MongoBridge providerMongoBridge(MongoIndexing index, MongoDatabase db) {
-        return new MongoBridge(index, db);
-    }
 
 
 }

@@ -5,7 +5,7 @@ package com.wj.search.index;
  */
 public interface InIndex <T extends Object>{
 
-    boolean bulkIndexing(Iterable<T> documents, String indexName);
+    int bulkIndexing(Iterable<T> documents, String indexName);
 
     boolean removeIndex(String index);
 }

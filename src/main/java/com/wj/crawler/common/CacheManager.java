@@ -50,6 +50,12 @@ public class CacheManager {
             .build();
 
 
+
+    public Cache<String, Date> getIndexCache(){
+        return indexCache;
+    }
+
+
     public PriorityBlockingQueue<CrawUserInfo> getWaitingUsers() {
         Log.debug("cached users size:{}", userCache.size());
         return Queues.newPriorityBlockingQueue(userCache.asMap().values());

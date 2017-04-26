@@ -43,16 +43,19 @@ public class CrawlerApp {
 
     public static void main(String args[]) {
 
+
         Fetcher fetcher = DaggerCrawlerApp_Fetcher.builder().build();
-        WeiboUserFetcher weiboUserFetcher = fetcher.getFetcher();
-        weiboUserFetcher.doFetchUser();
+
+         // removeMongo2Elastic(fetcher);
+//        WeiboUserFetcher weiboUserFetcher = fetcher.getFetcher();
+//        weiboUserFetcher.doFetchUser();
 
 //        WeiboContenFetcher weiboFetcher = fetcher.getWeiboFetcher();
 //        weiboFetcher.doFetchContent();
 //        CrawSyncService cyService = fetcher.getCyService();
 //        cyService.syncCrawInfoWithUser();
-        // SchedulerServiceManager ssm = fetcher.getServiceManager();
-        // SchedulerServiceManager ssm = fetcher.getServiceManager();
+        SchedulerServiceManager ssm = fetcher.getServiceManager();
+        ssm.start();
 
 
         //testMongo2Elas(fetcher);
@@ -69,11 +72,11 @@ public class CrawlerApp {
 
     }
 
-    private static void testMongo2Elastic(Fetcher fetcher) {
+    private static void removeMongo2Elastic(Fetcher fetcher) {
 
         MongoIndexing indexing = fetcher.getMongoIndexing();
 
-        indexing.removeIndex("weibo");
+        indexing.removeIndex("devicedata");
 
         //indexing.bulkIndexing(new ArrayList<Document>(),"weibo");
 
