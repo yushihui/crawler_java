@@ -87,9 +87,9 @@ public class WeiboFetchService extends AbstractScheduledService {
     }
 
     protected void runOneIteration() throws Exception {
-        if(true){
-            return;
-        }
+//        if(true){
+//            return;
+//        }
         roundStartTime = System.currentTimeMillis();
         PriorityBlockingQueue<CrawUserInfo> users = cache.getWaitingUsers();
         int maxCount = 10;

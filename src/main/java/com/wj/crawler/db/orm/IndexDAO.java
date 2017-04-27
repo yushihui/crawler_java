@@ -2,7 +2,9 @@ package com.wj.crawler.db.orm;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.UpdateOptions;
 import com.wj.crawler.common.Tuple;
 import org.bson.Document;
 
@@ -24,7 +26,7 @@ public class IndexDAO extends BaseDAO {
             @Nullable
             public Tuple<String, Date> apply(@Nullable Document document) {
 
-                String collection = document.getString("name");
+                String collection = document.getString("_id");
                 Date create_date = document.getDate("date");
 
                 return new Tuple(collection, create_date);
@@ -36,8 +38,10 @@ public class IndexDAO extends BaseDAO {
 
     public void add(String name, Date date) {
         Document d = new Document();
-        d.append("name", name);
+        d.append("_id", name);
         d.append("date", date);
-        this.insert(d);
+        collection.updateOne(new BasicDBObject("_id",name),new Document("$set", d),
+                new UpdateOptions().upsert(true)
+        );
     }
 }

@@ -125,6 +125,7 @@ public class MongoAdaptorService extends AbstractScheduledService {
         } else {
             Date now = new Date();
             total = collec.count(and(gt(sortBy, d),lt(sortBy,now)));
+            Log.debug("indexing from {} to {}", d.toString(), now.toString());
             while ((page - 1) * PAGE_SIZE < total) {
                 Iterable<Document> docs = collec.find(and(gt(sortBy, d),lt(sortBy,now))).projection(Projections.include(indexField, sortBy)).sort(Sorts.descending(sortBy)).skip(page * PAGE_SIZE).limit(PAGE_SIZE);
                 ListenableFuture<Tuple<Integer, Date>> indexFuture = service.submit(new MongoIndexing(docs, collection, client, indexField));

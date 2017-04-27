@@ -15,7 +15,9 @@ public class WeiboCustomerSchduler extends AbstractScheduledService.CustomSchedu
 
     private static final Logger Log = LoggerFactory.getLogger(WeiboCustomerSchduler.class);
 
-    public WeiboCustomerSchduler(){
+    private boolean flag = true;
+
+    public WeiboCustomerSchduler() {
 
     }
 
@@ -30,6 +32,10 @@ public class WeiboCustomerSchduler extends AbstractScheduledService.CustomSchedu
         int next_hours = 2;
         if (curHour >= 0 && curHour < 7) {
             next_hours = 7 - curHour;
+        }
+        if (flag) {
+            flag = false;
+            return new Schedule(10, TimeUnit.SECONDS);
         }
 
         Log.info(" next round is going to run in {} hours later", next_hours);
