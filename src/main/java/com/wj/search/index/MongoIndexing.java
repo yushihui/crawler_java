@@ -1,5 +1,6 @@
 package com.wj.search.index;
 
+import com.wj.crawler.common.Tuple;
 import org.bson.Document;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Date;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
@@ -18,7 +20,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 /**
  * Created by Syu on 4/21/2017.
  */
-public class MongoIndexing implements InIndex<Document>, Callable<Integer> {
+public class MongoIndexing implements InIndex<Document>, Callable<Tuple<Integer, Date>> {
 
 
     private TransportClient client;
@@ -30,6 +32,7 @@ public class MongoIndexing implements InIndex<Document>, Callable<Integer> {
     private static final String INDEX_TYPE = "mongo";
 
     private static final Logger Log = LoggerFactory.getLogger(MongoIndexing.class);
+    private Date date;
 
 
     @Inject
@@ -48,11 +51,15 @@ public class MongoIndexing implements InIndex<Document>, Callable<Integer> {
 
 
     @Override
-    public int bulkIndexing(Iterable<Document> documents, String collection) {
+    public Tuple<Integer, Date> bulkIndexing(Iterable<Document> documents, String collection) {
         int indexedDocuments = 0;
+
 
         BulkRequestBuilder bulkRequest = client.prepareBulk();
         documents.forEach(d -> {
+                    if (date == null) {
+                        date = d.getDate("f_time");
+                    }
                     try {
                         bulkRequest.add(client.prepareIndex(INDEX_PREFIX + collection.toLowerCase(), INDEX_TYPE,
                                 d.getObjectId("_id").toHexString()).setSource(jsonBuilder()
@@ -67,7 +74,7 @@ public class MongoIndexing implements InIndex<Document>, Callable<Integer> {
         );
         indexedDocuments = bulkRequest.numberOfActions();
         if (indexedDocuments == 0) {
-            return 0;
+            return new Tuple(0, null);
         }
 
         long start = System.currentTimeMillis();
@@ -83,7 +90,7 @@ public class MongoIndexing implements InIndex<Document>, Callable<Integer> {
         }
 
         Log.info("one bulk indexing takes {}", (System.currentTimeMillis() - start));
-        return indexedDocuments;
+        return new Tuple(indexedDocuments,date);
     }
 
     @Override
@@ -101,7 +108,7 @@ public class MongoIndexing implements InIndex<Document>, Callable<Integer> {
 
 
     @Override
-    public Integer call() throws Exception {
+    public Tuple<Integer, Date> call() throws Exception {
         return bulkIndexing(documents, collection);
     }
 }

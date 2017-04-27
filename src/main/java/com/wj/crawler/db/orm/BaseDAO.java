@@ -19,4 +19,8 @@ public abstract class BaseDAO {
         collection.insertMany(documents);
     }
 
+    public void insert(Document documents) {
+        collection.insertOne(documents);
+    }
+
 }

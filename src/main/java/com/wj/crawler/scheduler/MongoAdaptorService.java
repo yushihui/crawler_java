@@ -7,6 +7,8 @@ import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.Sorts;
 import com.wj.crawler.common.CacheManager;
 import com.wj.crawler.common.TimeUtils;
+import com.wj.crawler.common.Tuple;
+import com.wj.crawler.db.orm.IndexDAO;
 import com.wj.search.index.IndexClient;
 import com.wj.search.index.MongoIndexing;
 import org.bson.Document;
@@ -21,7 +23,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.gt;
+import static com.mongodb.client.model.Filters.lt;
 
 /**
  * Created by Syu on 4/25/2017.
@@ -38,12 +42,14 @@ public class MongoAdaptorService extends AbstractScheduledService {
     private long roundStartTime;
     private long docsCount = 0;
     private String collection;
+    private final IndexDAO indexDAO;
 
-    public MongoAdaptorService(Properties config, MongoDatabase db, IndexClient client, CacheManager cache) {
+    public MongoAdaptorService(Properties config, MongoDatabase db, IndexClient client, CacheManager cache, IndexDAO indexDAO) {
         this.config = config;
         this.db = db;
         this.client = client;
         this.cache = cache;
+        this.indexDAO = indexDAO;
         this.collection = this.config.getProperty("elastic.mongo.collection");
     }
 
@@ -57,12 +63,23 @@ public class MongoAdaptorService extends AbstractScheduledService {
         return true;
     };
 
-    private FutureCallback callBack = new FutureCallback<Integer>() {
-        public void onSuccess(Integer result) {
+    private FutureCallback callBack = new FutureCallback<Tuple<Integer, Date>>() {
+        public void onSuccess(Tuple<Integer, Date> result) {
             //Log.info("{} documents indexed.", result);
-            docsCount += result;
-            if (result > 0) {
+            docsCount += result.t;
+            if (result.t > 0 && result.n != null) {
                 //update cache
+                Date d = cache.getIndexCache().getIfPresent(collection);
+                if (d == null) {
+                    updateCache(result.n);
+                } else {
+                    if (d.compareTo(result.n) < 0) {
+                        updateCache(result.n);
+                    }
+                }
+
+                Log.info("{} cache updated to {}.", collection, result.n);
+
             }
         }
 
@@ -71,7 +88,16 @@ public class MongoAdaptorService extends AbstractScheduledService {
         }
     };
 
+    private void updateCache(Date d) {
+        if (d != null) {
+            cache.getIndexCache().put(collection, d);
+        }
+    }
+
     private String timeConsume() {
+
+        //save to db
+        indexDAO.add(collection, cache.getIndexCache().getIfPresent(collection));
         long millis = System.currentTimeMillis() - roundStartTime;
         return TimeUtils.Mills2PrettyString(millis);
     }
@@ -81,26 +107,27 @@ public class MongoAdaptorService extends AbstractScheduledService {
 
         ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(20));
         MongoCollection collec = db.getCollection(collection);
-        List<ListenableFuture<Integer>> futures = new ArrayList();
+        List<ListenableFuture<Tuple<Integer, Date>>> futures = new ArrayList();
         long total = 0;
         Date d = cache.getIndexCache().getIfPresent(collection);
-        String sortBy = config.getProperty("elastic.mongo.collection.index.sort","f_time");
-        String indexField = config.getProperty("elastic.mongo.collection.index.field","text");
+        String sortBy = config.getProperty("elastic.mongo.collection.index.sort", "f_time");
+        String indexField = config.getProperty("elastic.mongo.collection.index.field", "text");
         int page = 0;
         if (d == null) {
             total = collec.count();
             while ((page - 1) * PAGE_SIZE < total) {
-                Iterable<Document> docs = collec.find().projection(Projections.include(indexField)).sort(Sorts.descending(sortBy)).skip(page * PAGE_SIZE).limit(PAGE_SIZE);
-                ListenableFuture<Integer> indexFuture = service.submit(new MongoIndexing(docs, collection, client, indexField));
+                Iterable<Document> docs = collec.find().projection(Projections.include(indexField, sortBy)).sort(Sorts.descending(sortBy)).skip(page * PAGE_SIZE).limit(PAGE_SIZE);
+                ListenableFuture<Tuple<Integer, Date>> indexFuture = service.submit(new MongoIndexing(docs, collection, client, indexField));
                 futures.add(indexFuture);
                 Futures.addCallback(indexFuture, callBack);
                 page++;
             }
         } else {
-            total = collec.count(gt("f_time", d));
+            Date now = new Date();
+            total = collec.count(and(gt(sortBy, d),lt(sortBy,now)));
             while ((page - 1) * PAGE_SIZE < total) {
-                Iterable<Document> docs = collec.find(gt(sortBy, d)).sort(Sorts.descending(sortBy)).skip(page * PAGE_SIZE).limit(PAGE_SIZE);
-                ListenableFuture<Integer> indexFuture = service.submit(new MongoIndexing(docs, collection, client, indexField));
+                Iterable<Document> docs = collec.find(and(gt(sortBy, d),lt(sortBy,now))).projection(Projections.include(indexField, sortBy)).sort(Sorts.descending(sortBy)).skip(page * PAGE_SIZE).limit(PAGE_SIZE);
+                ListenableFuture<Tuple<Integer, Date>> indexFuture = service.submit(new MongoIndexing(docs, collection, client, indexField));
                 futures.add(indexFuture);
                 Futures.addCallback(indexFuture, callBack);
                 page++;

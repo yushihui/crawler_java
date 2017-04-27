@@ -24,13 +24,20 @@ public class IndexDAO extends BaseDAO {
             @Nullable
             public Tuple<String, Date> apply(@Nullable Document document) {
 
-                String collection = document.getString("collection");
-                Date create_date = document.getDate("create_date");
+                String collection = document.getString("name");
+                Date create_date = document.getDate("date");
 
                 return new Tuple(collection, create_date);
             }
 
         });
         return collectList;
+    }
+
+    public void add(String name, Date date) {
+        Document d = new Document();
+        d.append("name", name);
+        d.append("date", date);
+        this.insert(d);
     }
 }

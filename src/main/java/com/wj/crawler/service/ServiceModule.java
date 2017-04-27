@@ -6,6 +6,7 @@ import com.wj.crawler.common.CacheManager;
 import com.wj.crawler.common.ConfigModule;
 import com.wj.crawler.db.DbModule;
 import com.wj.crawler.db.Named;
+import com.wj.crawler.db.orm.IndexDAO;
 import com.wj.crawler.db.orm.UserCrawInfoDAO;
 import com.wj.crawler.db.orm.WeiboDAO;
 import com.wj.crawler.parser.WeiboParser;
@@ -37,8 +38,8 @@ public final class ServiceModule {
 
     @Provides
     @IntoSet
-    Service provideMongoAdaptorService(Properties config, @Named("el") MongoDatabase db, IndexClient client, CacheManager cache) {
-        return new MongoAdaptorService(config, db, client, cache);
+    Service provideMongoAdaptorService(Properties config, @Named("el") MongoDatabase db, IndexClient client, CacheManager cache, IndexDAO indexDAO) {
+        return new MongoAdaptorService(config, db, client, cache, indexDAO);
     }
 
 //    @Provides
