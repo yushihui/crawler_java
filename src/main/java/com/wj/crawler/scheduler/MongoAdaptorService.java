@@ -113,21 +113,22 @@ public class MongoAdaptorService extends AbstractScheduledService {
         String sortBy = config.getProperty("elastic.mongo.collection.index.sort", "f_time");
         String indexField = config.getProperty("elastic.mongo.collection.index.field", "text");
         int page = 0;
+        Date now = new Date();
         if (d == null) {
-            total = collec.count();
+            total = collec.count(lt(sortBy, now));
             while ((page - 1) * PAGE_SIZE < total) {
-                Iterable<Document> docs = collec.find().projection(Projections.include(indexField, sortBy)).sort(Sorts.descending(sortBy)).skip(page * PAGE_SIZE).limit(PAGE_SIZE);
+                Iterable<Document> docs = collec.find(lt(sortBy, now)).projection(Projections.include(indexField, sortBy)).sort(Sorts.descending(sortBy)).skip(page * PAGE_SIZE).limit(PAGE_SIZE);
                 ListenableFuture<Tuple<Integer, Date>> indexFuture = service.submit(new MongoIndexing(docs, collection, client, indexField));
                 futures.add(indexFuture);
                 Futures.addCallback(indexFuture, callBack);
                 page++;
             }
         } else {
-            Date now = new Date();
-            total = collec.count(and(gt(sortBy, d),lt(sortBy,now)));
+
+            total = collec.count(and(gt(sortBy, d), lt(sortBy, now)));
             Log.debug("indexing from {} to {}", d.toString(), now.toString());
             while ((page - 1) * PAGE_SIZE < total) {
-                Iterable<Document> docs = collec.find(and(gt(sortBy, d),lt(sortBy,now))).projection(Projections.include(indexField, sortBy)).sort(Sorts.descending(sortBy)).skip(page * PAGE_SIZE).limit(PAGE_SIZE);
+                Iterable<Document> docs = collec.find(and(gt(sortBy, d), lt(sortBy, now))).projection(Projections.include(indexField, sortBy)).sort(Sorts.descending(sortBy)).skip(page * PAGE_SIZE).limit(PAGE_SIZE);
                 ListenableFuture<Tuple<Integer, Date>> indexFuture = service.submit(new MongoIndexing(docs, collection, client, indexField));
                 futures.add(indexFuture);
                 Futures.addCallback(indexFuture, callBack);
