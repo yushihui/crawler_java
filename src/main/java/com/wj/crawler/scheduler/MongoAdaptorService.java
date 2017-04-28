@@ -143,6 +143,7 @@ public class MongoAdaptorService extends AbstractScheduledService {
 
     @Override
     protected void runOneIteration() throws Exception {
+        docsCount = 0;
         roundStartTime = System.currentTimeMillis();
         moving2Elastic();
     }
