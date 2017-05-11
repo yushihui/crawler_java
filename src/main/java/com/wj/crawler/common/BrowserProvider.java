@@ -8,7 +8,7 @@ import org.apache.http.message.BasicHeader;
 import java.util.Random;
 
 /**
- * Created by Administrator on 3/23/2017.
+ * Created by Syu on 3/23/2017.
  */
 public class BrowserProvider {
 

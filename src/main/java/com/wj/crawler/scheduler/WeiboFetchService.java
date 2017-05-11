@@ -82,8 +82,9 @@ public class WeiboFetchService extends AbstractScheduledService {
 
     protected void startUp() throws Exception {// get
         hours = Integer.parseInt(config.getProperty("weibo.freq", "6"));
-        String threadSize = config.getProperty("weibo.crawler.threads", "5");
+        String threadSize = config.getProperty("weibo.crawler.threads", "10");
         service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(Integer.parseInt(threadSize)));
+
     }
 
     protected void runOneIteration() throws Exception {
@@ -92,7 +93,7 @@ public class WeiboFetchService extends AbstractScheduledService {
 //        }
         roundStartTime = System.currentTimeMillis();
         PriorityBlockingQueue<CrawUserInfo> users = cache.getWaitingUsers();
-        int maxCount = 10;
+        int maxCount = 20;
         int count = 0;
         tweetsCount = 0;
         List<ListenableFuture<Tuple<Integer, CrawUserInfo>>> futures = new ArrayList();
@@ -101,16 +102,21 @@ public class WeiboFetchService extends AbstractScheduledService {
                 Log.info("all fetch workers have started");
                 break;
             }
+            Log.info("left user {}", users.size());
             if (count == maxCount) {
                 count = 0;
-                Thread.sleep(60 * 1000);
+                Log.info("wait for 20 seconds...");
+                Thread.sleep(20 * 1000);
             }
             CrawUserInfo user = users.take();
             if (user != null) {
-                ListenableFuture<Tuple<Integer, CrawUserInfo>> fetcher = service.submit(new WeiboCrawler(dao, parser, user));
+                ListenableFuture<Tuple<Integer, CrawUserInfo>> fetcher = service.submit(new WeiboCrawler(dao, parser, user, cache));
                 futures.add(fetcher);
                 Futures.addCallback(fetcher, fetchBack);
                 count++;
+                Thread.sleep(100);
+            }else{
+                Log.info("no user found...");
             }
 
         }

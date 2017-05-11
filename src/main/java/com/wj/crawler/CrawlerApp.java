@@ -2,6 +2,7 @@ package com.wj.crawler;
 
 
 import com.wj.adaptor.MongoBridge;
+import com.wj.crawler.common.CacheManager;
 import com.wj.crawler.common.NetModule;
 import com.wj.crawler.db.DbModule;
 import com.wj.crawler.fetcher.CrawSyncService;
@@ -38,6 +39,8 @@ public class CrawlerApp {
 
         MongoBridge getMongoBridge();
 
+        CacheManager getCache();
+
 
     }
 
@@ -45,20 +48,17 @@ public class CrawlerApp {
 
 
         Fetcher fetcher = DaggerCrawlerApp_Fetcher.builder().build();
+//        CacheManager cache = fetcher.getCache();
+//        cache.testProxy();
 
          // removeMongo2Elastic(fetcher);
 //        WeiboUserFetcher weiboUserFetcher = fetcher.getFetcher();
 //        weiboUserFetcher.doFetchUser();
 
-//        WeiboContenFetcher weiboFetcher = fetcher.getWeiboFetcher();
-//        weiboFetcher.doFetchContent();
 //        CrawSyncService cyService = fetcher.getCyService();
 //        cyService.syncCrawInfoWithUser();
         SchedulerServiceManager ssm = fetcher.getServiceManager();
         ssm.start();
-
-
-        //testMongo2Elas(fetcher);
 
     }
 

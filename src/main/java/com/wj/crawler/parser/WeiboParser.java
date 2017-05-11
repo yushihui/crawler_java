@@ -3,6 +3,7 @@ package com.wj.crawler.parser;
 import com.wj.crawler.common.Exceptions.FetchNotFoundException;
 import org.apache.http.HttpEntity;
 import org.bson.Document;
+import org.bson.json.JsonParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,10 +56,16 @@ public class WeiboParser {
     }
 
 
-    public List<Document> parserWeiboContent(HttpEntity entity) throws FetchNotFoundException {
+    public List<Document> parserWeiboContent(HttpEntity entity) throws FetchNotFoundException, JsonParseException  {
         List<Document> wbs = new ArrayList<Document>();
         String content = readContent(entity);
-        Document document = Document.parse(content);
+        Document document;
+        try{
+            document = Document.parse(content);
+        }catch(JsonParseException e){
+            throw e;
+        }
+
         List<Document> documents = (List<Document>) document.get("cards");
         Stream<Document> parallelStream = documents.parallelStream();
         parallelStream.forEach(d -> {

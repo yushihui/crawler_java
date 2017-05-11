@@ -18,4 +18,8 @@ public abstract class ProxyObject {
 
     public abstract boolean IsAvailable();
 
+    public String toString() {
+        return ip() + ":" + port();
+    }
+
 }
