@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.mongodb.client.model.Filters.ne;
 
 /**
  * Created by SYu on 3/23/2017.
@@ -45,12 +46,42 @@ public class UserCrawInfoDAO extends BaseDAO {
         collection.bulkWrite(users);
     }
 
+
+
+    public void UpSertUserDocuments(List<CrawUserInfo> userCards) {
+
+        List<WriteModel<Document>> users = new ArrayList<WriteModel<Document>>();
+        for (CrawUserInfo userInfo : userCards) {
+            Document filterDocument = new Document();
+            filterDocument.append("_id", userInfo.getUserId());
+            Document user = new Document();
+            user.put("_id", userInfo.getUserId());
+            user.put("screen_name", userInfo.getScreenName());
+            user.put("followers_count", userInfo.getFollowersCount());
+            WriteModel<Document> wd = new UpdateOneModel<Document>(
+                    filterDocument,                      // find part
+                    new Document("$set", user),           // update part
+                    new UpdateOptions().upsert(true)     // upsert
+            );
+            users.add(wd);
+
+        }
+        collection.bulkWrite(users);
+    }
     public void updateOneDoc(CrawUserInfo user) {
         Document filterDocument = new Document();
         filterDocument.append("_id", String.valueOf(user.getUserId()));
         Document doc = new Document();
         doc.append("last_post_id", user.getLastPostId());
         doc.append("last_fetch_time", user.getLastFetchTime());
+        collection.updateOne(filterDocument, new Document("$set", doc));
+    }
+
+    public void updateFetchFollower(CrawUserInfo user){
+        Document filterDocument = new Document();
+        filterDocument.append("_id", String.valueOf(user.getUserId()));
+        Document doc = new Document();
+        doc.append("follower_fetched", user.isFollowerFetched());
         collection.updateOne(filterDocument, new Document("$set", doc));
     }
 
@@ -73,6 +104,23 @@ public class UserCrawInfoDAO extends BaseDAO {
         return userList;
     }
 
+
+    public Iterable<CrawUserInfo> loadUsersForFollowers() {
+        Iterable documents = collection.find(ne("follower_fetched",true));
+        Iterable<CrawUserInfo> userList = Iterables.transform(documents, new Function<Document, CrawUserInfo>() {
+            @Nullable
+            public CrawUserInfo apply(@Nullable Document document) {
+                CrawUserInfo user = new CrawUserInfo();
+                user.setUserId(document.getString("_id"));
+                user.setFollowersCount(checkNotNull(document.getInteger("followers_count")));
+                user.setScreenName(document.getString("screen_name"));
+                return user;
+            }
+
+        });
+        return userList;
+    }
+
     //url = http://m.weibo.cn/u/1787537264?uid=1787537264&luicode=10000011&lfid=1076031787537264
     //return 1076031787537264 (or 107603)
     private String getContainerIdFromURL(String url) {
@@ -83,6 +131,9 @@ public class UserCrawInfoDAO extends BaseDAO {
         }
         return ret;
     }
+
+
+
 
 
 }

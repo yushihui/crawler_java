@@ -19,6 +19,10 @@ public class CrawUserInfo implements Comparable {
     private String screenName;
     private int followersCount;
 
+
+
+    private boolean followerFetched;
+
     private final static String URL_FORMAT = "http://m.weibo.cn/container/getIndex?type=uid&value=%s&containerid=%s&page=";
 
     private static final Logger Log = LoggerFactory.getLogger(CrawSyncService.class);
@@ -43,6 +47,14 @@ public class CrawUserInfo implements Comparable {
         this.userId = userId;
         this.screenName = screenName;
         this.followersCount = followersCount;
+    }
+
+    public boolean isFollowerFetched() {
+        return followerFetched;
+    }
+
+    public void setFollowerFetched(boolean followerFetched) {
+        this.followerFetched = followerFetched;
     }
 
     public int getFollowersCount() {

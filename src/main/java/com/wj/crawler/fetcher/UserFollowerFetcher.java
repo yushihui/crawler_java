@@ -1,7 +1,7 @@
 package com.wj.crawler.fetcher;
 
 import com.wj.crawler.db.orm.WeiboUserDAO;
-import com.wj.crawler.parser.WeiboParser;
+import com.wj.crawler.parser.FollowerParser;
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -16,26 +16,24 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Created by SYu on 3/14/2017.
+ * Created by shihui on 8/8/2017.
  */
-public class WeiboUserFetcher extends AbstractFetcher {
+public class UserFollowerFetcher extends AbstractFetcher{
+
     private CloseableHttpClient httpClient;
     private final WeiboUserDAO userDAO;
-    private final WeiboParser parser;
+    private final FollowerParser parser;
     private final List<Header> headers;
-    private static final Logger Log = LoggerFactory.getLogger(WeiboUserFetcher.class);
-
+    private static final Logger Log = LoggerFactory.getLogger(UserFollowerFetcher.class);
 
     @Inject
-    public WeiboUserFetcher(CloseableHttpClient httpClient, WeiboUserDAO dao, WeiboParser parser, List<Header> headers) {
+    public UserFollowerFetcher(CloseableHttpClient httpClient, WeiboUserDAO dao, FollowerParser parser, List<Header> headers) {
         this.httpClient = httpClient;
         this.userDAO = dao;
         this.parser = parser;
         this.headers = headers;
-       // URL_PREFIX = "http://m.weibo.cn/container/getSecond?containerid=1005055676212874_-_FOLLOWERS&page=";//todo
-        URL_PREFIX = "http://m.weibo.cn/container/getSecond?containerid=1005055688534101_-_FOLLOWERS&page=";
-
     }
+
 
     void fetchPage(int page) {
         httpClient = HttpClients.custom().build();
@@ -64,6 +62,4 @@ public class WeiboUserFetcher extends AbstractFetcher {
     public void doFetchUser() {
         doFetch(1, 3, 2);
     }
-
-
 }

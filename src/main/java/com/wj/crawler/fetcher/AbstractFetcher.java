@@ -5,7 +5,7 @@ package com.wj.crawler.fetcher;
  */
 public abstract class AbstractFetcher {
 
-    protected  String URL_PREFIX ="";
+    protected  String URL_PREFIX = "";
 
     abstract void fetchPage(int page);
 

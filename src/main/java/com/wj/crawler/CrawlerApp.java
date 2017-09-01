@@ -52,13 +52,13 @@ public class CrawlerApp {
 //        cache.testProxy();
 
          // removeMongo2Elastic(fetcher);
-//        WeiboUserFetcher weiboUserFetcher = fetcher.getFetcher();
-//        weiboUserFetcher.doFetchUser();
+        WeiboUserFetcher weiboUserFetcher = fetcher.getFetcher();
+        weiboUserFetcher.doFetchUser();
 
 //        CrawSyncService cyService = fetcher.getCyService();
 //        cyService.syncCrawInfoWithUser();
-        SchedulerServiceManager ssm = fetcher.getServiceManager();
-        ssm.start();
+//        SchedulerServiceManager ssm = fetcher.getServiceManager();
+//        ssm.start();
 
     }
 
