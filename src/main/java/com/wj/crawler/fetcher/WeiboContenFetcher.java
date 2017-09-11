@@ -54,6 +54,11 @@ public class WeiboContenFetcher extends AbstractFetcher {
         }
     }
 
+    @Override
+    boolean fetchPage(String url) {
+        return true;
+    }
+
     private void retry(int i) {
         try {
             httpClient.close();

@@ -20,4 +20,22 @@ public abstract class AbstractFetcher {
             }
         }
     }
+
+   abstract boolean  fetchPage(String url);
+
+    public void doFetchFollower(String uid,int from, int to, int freq) {
+        for (int i = from; i < to; i++) {
+            String url = String.format(SinaUrl.FOLLOWERS_URL, uid, i);
+            boolean flag = fetchPage(url);
+            if(!flag){
+               break;
+            }
+            try {
+                Thread.sleep(freq * 1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

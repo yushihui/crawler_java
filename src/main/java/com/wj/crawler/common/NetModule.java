@@ -51,11 +51,11 @@ public class NetModule {
     List<Header> providerHttpHeaders(Properties config) {
 
         Header header = new BasicHeader(
-                HttpHeaders.CONTENT_TYPE, "application/json");
+                HttpHeaders.CONTENT_TYPE, "text/html");
         Header headerConnection = new BasicHeader(
                 HttpHeaders.CONNECTION, "keep-alive");
         Header headerHost = new BasicHeader(
-                HttpHeaders.HOST, "m.weibo.cn");
+                HttpHeaders.HOST, "weibo.cn");
         Header headerSecure = new BasicHeader(
                 HttpHeaders.REFERER, "http://m.weibo.cn/");
 
@@ -64,9 +64,9 @@ public class NetModule {
                 "Cookie", cookie);
 
         Header headerAgent = new BasicHeader(
-                HttpHeaders.USER_AGENT, "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1");
+                HttpHeaders.USER_AGENT, "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.101 Safari/537.36");
 
-        return Lists.newArrayList(header,headerAgent,headerCookie);
+        return Lists.newArrayList(header, headerAgent,headerCookie, headerConnection);
 
     }
 

@@ -61,6 +61,11 @@ public class WeiboUserFetcher extends AbstractFetcher {
         }
     }
 
+    @Override
+    boolean fetchPage(String url) {
+        return true;
+    }
+
     public void doFetchUser() {
         doFetch(1, 3, 2);
     }

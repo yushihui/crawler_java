@@ -5,9 +5,7 @@ import com.wj.adaptor.MongoBridge;
 import com.wj.crawler.common.CacheManager;
 import com.wj.crawler.common.NetModule;
 import com.wj.crawler.db.DbModule;
-import com.wj.crawler.fetcher.CrawSyncService;
-import com.wj.crawler.fetcher.WeiboContenFetcher;
-import com.wj.crawler.fetcher.WeiboUserFetcher;
+import com.wj.crawler.fetcher.*;
 import com.wj.crawler.parser.ParserModule;
 import com.wj.crawler.scheduler.SchedulerServiceManager;
 import com.wj.crawler.service.ServiceModule;
@@ -41,6 +39,9 @@ public class CrawlerApp {
 
         CacheManager getCache();
 
+        UserFollowerFetcher getFollowerFetcher();
+
+        FetchFollowerService getFetchFollowerService();
 
     }
 
@@ -52,13 +53,19 @@ public class CrawlerApp {
 //        cache.testProxy();
 
          // removeMongo2Elastic(fetcher);
-        WeiboUserFetcher weiboUserFetcher = fetcher.getFetcher();
-        weiboUserFetcher.doFetchUser();
+//        WeiboUserFetcher weiboUserFetcher = fetcher.getFetcher();
+//        weiboUserFetcher.doFetchUser();
 
 //        CrawSyncService cyService = fetcher.getCyService();
 //        cyService.syncCrawInfoWithUser();
 //        SchedulerServiceManager ssm = fetcher.getServiceManager();
 //        ssm.start();
+
+//        UserFollowerFetcher userFollowerFetcher = fetcher.getFollowerFetcher();
+//        userFollowerFetcher.doFetchUser("1680990025");
+        FetchFollowerService ffs = fetcher.getFetchFollowerService();
+        ffs.doFetching();
+
 
     }
 

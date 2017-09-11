@@ -17,4 +17,10 @@ public class ParserModule {
     WeiboParser providerWeiboParser() {
         return new WeiboParser();
     }
+
+    @Provides
+    @Singleton
+    FollowerParser providerFollowerParser() {
+        return new FollowerParser();
+    }
 }

@@ -25,6 +25,8 @@ public class UserCrawInfoDAO extends BaseDAO {
     }
 
 
+
+
     public void UpSertDocuments(List<Document> userCards) {
 
         List<WriteModel<Document>> users = new ArrayList<WriteModel<Document>>();
@@ -38,6 +40,25 @@ public class UserCrawInfoDAO extends BaseDAO {
             WriteModel<Document> wd = new UpdateOneModel<Document>(
                     filterDocument,                      // find part
                     new Document("$set", user),           // update part
+                    new UpdateOptions().upsert(true)     // upsert
+            );
+            users.add(wd);
+
+        }
+        collection.bulkWrite(users);
+    }
+
+
+    public void UpSertFollowerDocuments(List<Document> userCards) {
+
+        List<WriteModel<Document>> users = new ArrayList<WriteModel<Document>>();
+        for (Document userInfo : userCards) {
+            Document filterDocument = new Document();
+            filterDocument.append("_id", String.valueOf(userInfo.get("_id")));
+
+            WriteModel<Document> wd = new UpdateOneModel<Document>(
+                    filterDocument,                      // find part
+                    new Document("$set", userInfo),           // update part
                     new UpdateOptions().upsert(true)     // upsert
             );
             users.add(wd);
@@ -82,6 +103,28 @@ public class UserCrawInfoDAO extends BaseDAO {
         filterDocument.append("_id", String.valueOf(user.getUserId()));
         Document doc = new Document();
         doc.append("follower_fetched", user.isFollowerFetched());
+        collection.updateOne(filterDocument, new Document("$set", doc));
+    }
+
+    public Iterable<CrawUserInfo> loadUnFollowUsers() {
+        Iterable documents = collection.find(ne("follower_fetched", true)).limit(10000);
+        Iterable<CrawUserInfo> userList = Iterables.transform(documents, new Function<Document, CrawUserInfo>() {
+            @Nullable
+            public CrawUserInfo apply(@Nullable Document document) {
+                CrawUserInfo user = new CrawUserInfo();
+                user.setUserId(document.getString("_id"));
+                return user;
+            }
+
+        });
+        return userList;
+    }
+
+    public void UpdateFollowFetchStatus(String id){
+        Document filterDocument = new Document();
+        filterDocument.append("_id", id);
+        Document doc = new Document();
+        doc.append("follower_fetched", true);
         collection.updateOne(filterDocument, new Document("$set", doc));
     }
 
