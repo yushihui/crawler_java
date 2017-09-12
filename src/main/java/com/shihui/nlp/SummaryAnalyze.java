@@ -34,7 +34,7 @@ public class SummaryAnalyze {
 
     public static void main(String rags[]) {
         Segment nShortSegment = new NShortSegment().enableCustomDictionary(false).enablePlaceRecognize(true).enableOrganizationRecognize(true);
-        List<Term> res = nShortSegment.seg("你好，欢迎使用HanLP汉语处理包！ hello");
+        List<Term> res = nShortSegment.seg("你好，欢迎使用HanLP汉语处理包！ hEllo");
         new SummaryAnalyze().readFile();
     }
 
