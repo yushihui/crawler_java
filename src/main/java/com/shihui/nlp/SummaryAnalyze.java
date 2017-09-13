@@ -49,11 +49,6 @@ public class SummaryAnalyze {
         return plainWords;
     }
 
-    private List<String> getKeywords(String content) {
-        return HanLP.extractKeyword(content, 5);
-    }
-
-
     private List<String> getSummary(String content) {
         List<String> ret = HanLP.extractSummary(content, 2);
 
@@ -61,6 +56,9 @@ public class SummaryAnalyze {
         return ret;
     }
 
+    private List<String> getKeywords(String content) {
+        return HanLP.extractKeyword(content, 5);
+    }
     private void write2File(List<Multiset.Entry<String>> result, String fileName) {
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(LOCATION_NLP + fileName))) {
             result.forEach(fw -> {
