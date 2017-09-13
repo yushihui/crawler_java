@@ -35,8 +35,7 @@ public class SummaryAnalyze {
     public static void main(String rags[]) {
         Segment nShortSegment = new NShortSegment().enableCustomDictionary(false).enablePlaceRecognize(true).enableOrganizationRecognize(true);
         List<Term> res = nShortSegment.seg("你好，欢迎使用hanLP汉语处理包！ HEllo");
-        //add new line 2
-        //add new line 3
+        //abc
         //add new line 4
         //add new line 6
         new SummaryAnalyze().readFile();
