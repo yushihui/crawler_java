@@ -41,16 +41,20 @@ public class CacheManager {
     private final UserCrawInfoDAO userDao;
     private final ProxyDAO proxyDao;
     private final IndexDAO indexDao;
+    private final Properties config;
 
     private static final Logger Log = LoggerFactory.getLogger(CacheManager.class);
 
     private static final String PROXY_URL = "http://dev.kuaidaili.com/api/getproxy/?orderid=909394638192958&num=100&b_pcchrome=1&b_pcie=1&b_pcff=1&protocol=1&method=2&an_an=1&an_ha=1&sp2=1&quality=1&format=json&sep=1";
 
+    private static final String PROXY_STABLE = "stable_proxy";
+
     @Inject
-    public CacheManager(UserCrawInfoDAO userDao, ProxyDAO proxyDao, IndexDAO indexDAO) {
+    public CacheManager(UserCrawInfoDAO userDao, ProxyDAO proxyDao, IndexDAO indexDAO, Properties config) {
         this.userDao = userDao;
         this.proxyDao = proxyDao;
         this.indexDao = indexDAO;
+        this.config = config;
         initUserCache();
         initIndexCache();
     }
@@ -62,10 +66,26 @@ public class CacheManager {
             .build(
                     new CacheLoader<String, List<ProxyObject>>() {
                         public List<ProxyObject> load(String key) throws Exception {
-                            return createProxise(key);
+                            return createProxise();
                         }
                     });
 
+
+
+    private List<ProxyObject> createProxise() {
+        List<ProxyObject> result = new ArrayList<>();
+        String proxy_str = config.getProperty("weibo.proxy");
+        String []pxys = proxy_str.split(";");
+        if(pxys.length > 0){
+
+        }
+        for(String ps : pxys){
+            String pair[] = ps.split(":");
+            result.add(ProxyObject.create(pair[0], Integer.parseInt(pair[1]), true));
+        }
+        return result;
+
+    }
 
     private List<ProxyObject> createProxise(String url) {
         List<ProxyObject> result = new ArrayList<>();
@@ -111,11 +131,11 @@ public class CacheManager {
     public List<ProxyObject> getProxies() {
         List<ProxyObject> proxyObjects = null;
         try {
-            return proxyCache.get(PROXY_URL, new Callable<List<ProxyObject>>() {
+            return proxyCache.get(PROXY_STABLE, new Callable<List<ProxyObject>>() {
                 @Override
                 public List<ProxyObject> call() throws Exception {
 
-                    return createProxise(PROXY_URL);
+                    return createProxise();
                 }
             });
         } catch (ExecutionException e) {

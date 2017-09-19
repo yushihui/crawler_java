@@ -46,6 +46,13 @@ public class NetModule {
         return context;
     }
 
+
+    @Provides
+    @Singleton
+    ProxyCache providerProxyCache(Properties config) {
+        return new ProxyCache(config);
+    }
+
     @Provides
     @Singleton
     List<Header> providerHttpHeaders(Properties config) {

@@ -55,7 +55,7 @@ public class WeiboContenFetcher extends AbstractFetcher {
     }
 
     @Override
-    boolean fetchPage(String url) {
+    boolean fetchPage(String url, boolean useProxy) {
         return true;
     }
 

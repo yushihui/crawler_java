@@ -42,6 +42,9 @@ public final class ServiceModule {
         return new MongoAdaptorService(config, db, client, cache, indexDAO);
     }
 
+
+
+
 //    @Provides
 //    @IntoSet
 //    Service provideToutiaoFetchService() {

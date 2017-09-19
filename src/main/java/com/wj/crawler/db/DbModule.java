@@ -127,8 +127,8 @@ public final class DbModule {
 
     @Provides
     @Singleton
-    CacheManager providerCacheManager(UserCrawInfoDAO userDao, ProxyDAO proxyDao, IndexDAO indexDAO) {
-        return new CacheManager(userDao, proxyDao, indexDAO);
+    CacheManager providerCacheManager(UserCrawInfoDAO userDao, ProxyDAO proxyDao, IndexDAO indexDAO, Properties config) {
+        return new CacheManager(userDao, proxyDao, indexDAO, config);
     }
 }
 
