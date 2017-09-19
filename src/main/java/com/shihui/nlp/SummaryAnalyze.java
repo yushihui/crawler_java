@@ -34,7 +34,11 @@ public class SummaryAnalyze {
 
     public static void main(String rags[]) {
         Segment nShortSegment = new NShortSegment().enableCustomDictionary(false).enablePlaceRecognize(true).enableOrganizationRecognize(true);
-        List<Term> res = nShortSegment.seg("你好，欢迎使用HanLP汉语处理包！");
+        List<Term> res = nShortSegment.seg("你好，欢迎使用hanLP汉语处理包！ HEllo");
+        //abc
+        //dce
+        //add new line 1
+        //add new line 5
         new SummaryAnalyze().readFile();
     }
 
@@ -45,11 +49,6 @@ public class SummaryAnalyze {
         return plainWords;
     }
 
-    private List<String> getKeywords(String content) {
-        return HanLP.extractKeyword(content, 5);
-    }
-
-
     private List<String> getSummary(String content) {
         List<String> ret = HanLP.extractSummary(content, 2);
 
@@ -57,6 +56,9 @@ public class SummaryAnalyze {
         return ret;
     }
 
+    private List<String> getKeywords(String content) {
+        return HanLP.extractKeyword(content, 5);
+    }
     private void write2File(List<Multiset.Entry<String>> result, String fileName) {
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(LOCATION_NLP + fileName))) {
             result.forEach(fw -> {
