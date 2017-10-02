@@ -23,11 +23,50 @@ import java.util.stream.Collectors;
 public class FollowerParser {
 
 
-    private static final Logger Log = LoggerFactory.getLogger(WeiboParser.class);
+    private static final Logger Log = LoggerFactory.getLogger(FollowerParser.class);
 
 
     public FollowerParser() {
 
+    }
+
+
+    public String parseUserAddress(HttpEntity entity) {
+
+        String address = "";
+        String content = readContent(entity);
+        org.jsoup.nodes.Document doc = Jsoup.parse(content);
+        Element el = doc.select(".tip").get(1).nextElementSibling();
+        el.text();
+
+//
+        String patternStr = "\u5730\u533a:.+\u751f\u65e5:";
+        Pattern pattern = Pattern.compile(patternStr);
+        String text = el.text();
+        Matcher matcher = pattern.matcher(text);
+        if (matcher.find()) {
+            int start = matcher.start();
+            int end = matcher.end();
+            address = text.substring(start + 3, end - 3).trim();
+
+        } else {
+
+             patternStr = "\u5730\u533a:.+\u8ba4\u8bc1\u4fe1\u606f";
+             pattern = Pattern.compile(patternStr);
+             matcher = pattern.matcher(text);
+            if(matcher.find()){
+                int start = matcher.start();
+                int end = matcher.end();
+                address = text.substring(start + 3, end - 4).trim();
+            }else{
+                Log.info("can't find address" );
+            }
+
+
+        }
+
+        Log.info("address:" + address);
+        return address;
     }
 
     public List<Document> parseWeiboUser(HttpEntity entity) {
@@ -41,7 +80,7 @@ public class FollowerParser {
         doc.select("table").forEach(
                 tb -> {
                     Element el = tb.select("td").last();
-                    if(el == null){
+                    if (el == null) {
                         return;
                     }
 
@@ -52,17 +91,17 @@ public class FollowerParser {
                     if (matcher.find()) {
                         int start = matcher.start();
                         int end = matcher.end();
-                        String followStr = text.substring(start+2, end-1);
-                        try{
-                            followers.add(Integer.parseInt(followStr))  ;
-                        }catch(Exception e){
+                        String followStr = text.substring(start + 2, end - 1);
+                        try {
+                            followers.add(Integer.parseInt(followStr));
+                        } catch (Exception e) {
 
                         }
 
-                    }else{
+                    } else {
                         System.out.println("not found");
                     }
-                   // Log.info(el.text());
+                    // Log.info(el.text());
                     names.add(el.select("a").first().text());
                 }
         );
@@ -73,13 +112,13 @@ public class FollowerParser {
         } else {
             String uids = doc.select("input[name=uidList]").first().attr("value");
             List<String> ids = Arrays.asList(uids.split(","));
-            for (int i =0; i< ids.size(); i++){
-                users.add(new Document().append("screen_name", names.get(i)).append("_id", ids.get(i)).append("followers_count",followers.get(i)));
+            for (int i = 0; i < ids.size(); i++) {
+                users.add(new Document().append("screen_name", names.get(i)).append("_id", ids.get(i)).append("followers_count", followers.get(i)));
             }
         }
 
         return users.stream().filter(u ->
-            (Integer)(u.get("followers_count")) > 20000
+                (Integer) (u.get("followers_count")) > 20000
         ).collect(Collectors.toList());
 
 
@@ -100,7 +139,6 @@ public class FollowerParser {
             e.printStackTrace();
         }
         String ret = result.toString();
-        Log.debug("response content: " + ret);
         return ret;
     }
 

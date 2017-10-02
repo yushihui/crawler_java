@@ -7,6 +7,7 @@ public class SinaUrl {
 
     public static final String USER_URL= "https://m.weibo.cn/api/container/getIndex?type=uid&value=1680990025";
     public static final String FOLLOWERS_URL= "https://weibo.cn/%s/follow?page=%d";
+    public static final String USER_INFO_URL= "https://weibo.cn/%s/info";
 
 
 }

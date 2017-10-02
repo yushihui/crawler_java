@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.mongodb.client.model.Filters.exists;
 import static com.mongodb.client.model.Filters.ne;
 
 /**
@@ -120,11 +121,35 @@ public class UserCrawInfoDAO extends BaseDAO {
         return userList;
     }
 
+
+    public Iterable<CrawUserInfo> loadNoAddrUsers() {
+        Iterable documents = collection.find(exists("address", false)).limit(10000);
+        Iterable<CrawUserInfo> userList = Iterables.transform(documents, new Function<Document, CrawUserInfo>() {
+            @Nullable
+            public CrawUserInfo apply(@Nullable Document document) {
+                CrawUserInfo user = new CrawUserInfo();
+                user.setUserId(document.getString("_id"));
+                return user;
+            }
+
+        });
+        return userList;
+    }
+
+
     public void UpdateFollowFetchStatus(String id){
         Document filterDocument = new Document();
         filterDocument.append("_id", id);
         Document doc = new Document();
         doc.append("follower_fetched", true);
+        collection.updateOne(filterDocument, new Document("$set", doc));
+    }
+
+    public void UpdateUserAddr(String id, String address){
+        Document filterDocument = new Document();
+        filterDocument.append("_id", id);
+        Document doc = new Document();
+        doc.append("address", address);
         collection.updateOne(filterDocument, new Document("$set", doc));
     }
 
